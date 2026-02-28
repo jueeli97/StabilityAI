@@ -1,0 +1,49 @@
+.hero{
+  padding: 8px 6px 6px;
+}
+
+.h1{
+  margin: 0 0 10px;
+  font-size: clamp(30px, 4vw, 44px);
+  line-height: 1.12;
+  letter-spacing: -0.6px;
+  color: var(--primary);
+  font-weight: 900;
+}
+
+.accent{
+  color: var(--accent);
+}
+
+.heroText{
+  margin: 0 0 16px;
+  color: var(--muted);
+  line-height: 1.6;
+  max-width: 70ch;
+  font-size: 16px;
+}
+
+.heroPoints{
+  display:flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.point{
+  font-size: 12px;
+  padding: 9px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.7);
+  color: var(--primary);
+  box-shadow: 0 8px 18px rgba(16, 24, 40, 0.05);
+}
+
+.point::before{
+  content: "✓";
+  display:inline-block;
+  margin-right: 8px;
+  font-weight: 900;
+  color: var(--accent);
+}
