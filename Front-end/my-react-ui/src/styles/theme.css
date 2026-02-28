@@ -1,0 +1,20 @@
+:root{
+  --bg: #F2F4F6;
+  --surface: #FFFFFF;
+
+  --primary: #2F3E63;   /* deep blue */
+  --accent: #4C9C94;    /* teal */
+  --accentHover: #3E8E87;
+
+  --text: #0F172A;      /* slate */
+  --muted: #7C8A9A;     /* gray text */
+
+  --border: rgba(15,23,42,0.12);
+  --borderStrong: rgba(15,23,42,0.18);
+
+  --shadow: 0 16px 50px rgba(16, 24, 40, 0.10);
+  --shadowSm: 0 10px 26px rgba(16, 24, 40, 0.08);
+
+  --radius: 22px;
+  --ring: 0 0 0 4px rgba(76,156,148,0.18);
+}
