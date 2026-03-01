@@ -9,7 +9,7 @@
     <!-- Google Font -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="styles.css" />
 </head>
 
 <body>
@@ -41,7 +41,7 @@
     </header>
 
 
-    <!-- ================= HERO SECTION ================= -->
+    
     <!-- ================= HERO SECTION ================= -->
     <section id="home" class="hero">
         <div class="hero-bg">
@@ -155,7 +155,6 @@
 
 
     <!-- ================= ABOUT SECTION ================= -->
-    <!-- ================= ABOUT SECTION ================= -->
     <section id="about" class="about">
         <div class="container">
 
@@ -221,9 +220,228 @@
     </section>
 
 
+    
     <!-- ================= HOW IT WORKS ================= -->
-    <section id="how-it-works" class="section">
-        <h2>How It Works</h2>
+    <section id="how-it-works" class="how">
+        <div class="container">
+            <div class="how-head">
+                <h2>Get Your Personalized Plan</h2>
+                <p>
+                    Fill in a quick snapshot — we’ll generate a budgeting + debt payoff roadmap and explain it clearly.
+                </p>
+            </div>
+
+            <div class="how-grid reveal">
+                <!-- LEFT: FORM -->
+                <div class="how-card">
+                    <div class="how-card-title">
+                        <span class="badge">Smart Intake</span>
+                        <h3>Your Financial Snapshot</h3>
+                        <p class="muted">All fields are required. Numbers only (no negatives).</p>
+                    </div>
+
+                    <form id="planForm" novalidate>
+                        <div class="field">
+                            <label for="persona">Persona</label>
+                            <select id="persona" name="persona" required>
+                                <option value="">Select</option>
+                                <option value="single_mom">Single Mom</option>
+                                <option value="divorced">Recently Divorced</option>
+                                <option value="restarting">Restarting Financially</option>
+                                <option value="student">Student / Early Career</option>
+                            </select>
+                            <small class="error" data-error-for="persona"></small>
+                        </div>
+
+                        <div class="field-row">
+                            <div class="field">
+                                <label for="income">Monthly Income ($)</label>
+                                <input id="income" name="income" type="number" inputmode="numeric" min="0"
+                                    placeholder="e.g., 4200" required />
+                                <small class="error" data-error-for="income"></small>
+                            </div>
+
+                            <div class="field">
+                                <label for="dependents">Dependents</label>
+                                <input id="dependents" name="dependents" type="number" inputmode="numeric" min="0"
+                                    step="1" placeholder="e.g., 2" required />
+                                <small class="error" data-error-for="dependents"></small>
+                            </div>
+                        </div>
+
+                        
+                            <div class="field">
+                                <label for="rent">Housing / Rent ($)</label>
+                                <input id="rent" name="rent" type="number" inputmode="numeric" min="0"
+                                    placeholder="e.g., 1500" required />
+                                <small class="error" data-error-for="rent"></small>
+                            </div>
+
+                            <!-- <div class="field">
+                                <label for="childcare">Childcare ($)</label>
+                                <input id="childcare" name="childcare" type="number" inputmode="numeric" min="0"
+                                    placeholder="e.g., 600" required />
+                                <small class="error" data-error-for="childcare"></small>
+                            </div> -->
+                        
+
+                        <!-- <div class="field-row">
+                            <div class="field">
+                                <label for="essentials">Essentials ($)</label>
+                                <input id="essentials" name="essentials" type="number" inputmode="numeric" min="0"
+                                    placeholder="groceries + utilities" required />
+                                <small class="error" data-error-for="essentials"></small>
+                            </div>
+
+                            <div class="field">
+                                <label for="transport">Transport ($)</label>
+                                <input id="transport" name="transport" type="number" inputmode="numeric" min="0"
+                                    placeholder="e.g., 250" required />
+                                <small class="error" data-error-for="transport"></small>
+                            </div>
+                        </div> -->
+
+                        <div class="field-row">
+                            <div class="field">
+                                <label for="debtTotal">Total Debt ($)</label>
+                                <input id="debtTotal" name="debtTotal" type="number" inputmode="numeric" min="0"
+                                    placeholder="e.g., 12000" required />
+                                <small class="error" data-error-for="debtTotal"></small>
+                            </div>
+
+                            <div class="field">
+                                <label for="apr">Avg Interest (APR %)</label>
+                                <input id="apr" name="apr" type="number" inputmode="decimal" min="0" max="60" step="0.1"
+                                    placeholder="e.g., 19.9" required />
+                                <small class="error" data-error-for="apr"></small>
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <label for="goal">Primary Goal</label>
+                            <select id="goal" name="goal" required>
+                                <option value="">Select</option>
+                                <option value="debt_free">Become debt-free</option>
+                                <option value="save_more">Build emergency fund</option>
+                                <option value="both">Debt + savings together</option>
+                            </select>
+                            <small class="error" data-error-for="goal"></small>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" id="generateBtn" class="btn-primary full">
+                                <span class="btn-icon">✨</span>
+                                <span class="btn-text">Generate My Plan</span>
+                                <span class="btn-spinner" aria-hidden="true"></span>
+                            </button>
+                            <p class="tiny muted">
+                                Tip: Keep it realistic — the best plan is the one you can follow.
+                            </p>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- RIGHT: OUTPUT -->
+                <div class="how-card results-card">
+                    <div class="how-card-title">
+                        <span class="badge ghost">Your Output</span>
+                        <h3>Personalized Financial Plan</h3>
+                        <p class="muted">Your results will appear here after generation.</p>
+                    </div>
+
+                    <!-- Empty state -->
+                    <div id="emptyState" class="empty-state">
+                        <div class="empty-visual">
+                            <div class="pulse-ring"></div>
+                            <div class="pulse-core"></div>
+                        </div>
+                        <h4>Ready when you are</h4>
+                        <p>Submit your snapshot to see budget breakdown, action steps, and your plan explained.</p>
+                    </div>
+
+                    <!-- Loading skeleton -->
+                    <div id="loadingState" class="loading-state hidden">
+                        <div class="skeleton top"></div>
+                        <div class="skeleton mid"></div>
+                        <div class="skeleton mid"></div>
+                        <div class="skeleton mid"></div>
+                        <div class="skeleton bot"></div>
+                        <p class="muted tiny" style="margin-top:10px;">Analyzing… creating a realistic roadmap.</p>
+                    </div>
+
+                    <!-- Results -->
+                    <div id="resultsState" class="results hidden">
+                        <!-- Top metrics -->
+                        <div class="metrics">
+                            <div class="metric">
+                                <div class="k">Stability Score</div>
+                                <div class="v" id="outScore">—</div>
+                            </div>
+                            <div class="metric">
+                                <div class="k">Debt-free ETA</div>
+                                <div class="v" id="outDebtEta">—</div>
+                            </div>
+                            <div class="metric">
+                                <div class="k">Monthly Savings</div>
+                                <div class="v" id="outSave">—</div>
+                            </div>
+                        </div>
+
+                        <!-- Budget chips -->
+                        <div class="panel">
+                            <div class="panel-head">
+                                <h4>Monthly Budget Breakdown</h4>
+                                <span class="pill-sm" id="outMethod">Recommended</span>
+                            </div>
+                            <div class="chip-grid" id="budgetGrid"></div>
+                        </div>
+
+                        <!-- Action plan -->
+                        <div class="panel">
+                            <div class="panel-head">
+                                <h4>Your Next 30 Days</h4>
+                                <span class="pill-sm">Action steps</span>
+                            </div>
+                            <div class="steps" id="nextSteps"></div>
+                        </div>
+
+                        <!-- 6-month plan accordion -->
+                        <div class="panel">
+                            <button class="accordion" type="button" id="accBtn">
+                                <span>6-Month Recovery Plan</span>
+                                <span class="chev" id="accChev">▾</span>
+                            </button>
+                            <div class="accordion-body" id="accBody">
+                                <div class="steps" id="sixMonthSteps"></div>
+                            </div>
+                        </div>
+
+                        <!-- Gemini summary -->
+                        <div class="panel">
+                            <div class="panel-head">
+                                <h4>AI Summary</h4>
+                                <span class="pill-sm">Personalized</span>
+                            </div>
+                            <p class="summary" id="aiSummary"></p>
+                        </div>
+
+                        <!-- Voice -->
+                        <div class="voice">
+                            <button class="btn-secondary full" id="voiceBtn" type="button">
+                                🎧 Read My Plan Aloud
+                                <span class="btn-spinner small" id="voiceSpinner" aria-hidden="true"></span>
+                            </button>
+
+                            <audio id="audioPlayer" class="audio hidden" controls></audio>
+                            <small class="tiny muted">Voice may take a few seconds to generate.</small>
+                        </div>
+                    </div>
+
+                    <!-- Toast -->
+                    <div id="toast" class="toast hidden"></div>
+                </div>
+            </div>
+        </div>
     </section>
 
 
