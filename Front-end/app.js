@@ -119,3 +119,105 @@ setSlide(0);
 setInterval(() => {
   setSlide((currentSlide + 1) % slides.length);
 }, 3800);
+
+// ===== BACKEND CONNECTION =====
+const API_URL = "http://localhost:5000";
+
+document.getElementById("planForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const submitBtn = document.getElementById("submitBtn");
+    submitBtn.textContent = "⏳ Generating your plan...";
+    submitBtn.disabled = true;
+
+    const userProfile = {
+        situation: document.getElementById("situation").value,
+        salary: parseFloat(document.getElementById("salary").value),
+        numChildren: parseInt(document.getElementById("numChildren").value),
+        childAges: document.getElementById("childAges").value,
+        rent: parseFloat(document.getElementById("rent").value),
+        totalDebt: parseFloat(document.getElementById("totalDebt").value),
+        monthlyDebtPayment: parseFloat(document.getElementById("monthlyDebtPayment").value),
+        savings: parseFloat(document.getElementById("savings").value),
+    };
+
+    try {
+        const res = await fetch(`${API_URL}/api/gemini/`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ userProfile }),
+        });
+
+        const data = await res.json();
+        displayResults(data);
+    } catch (err) {
+        alert("Something went wrong. Make sure your backend is running!");
+        console.error(err);
+    } finally {
+        submitBtn.textContent = "✨ Generate My Plan";
+        submitBtn.disabled = false;
+    }
+});
+
+function displayResults(data) {
+    const results = document.getElementById("results");
+    results.style.display = "block";
+    results.scrollIntoView({ behavior: "smooth" });
+
+    const budget = data.budgetBreakdown;
+    const icons = {
+        housing: "🏠", children: "👶", food: "🛒",
+        debt: "💳", emergency: "🚨", investment: "📈", personal: "💜"
+    };
+
+    results.innerHTML = `
+        <h3>✨ Your Personalized Financial Plan</h3>
+
+        <h4 style="margin-bottom:12px; color:#7C5CFC;">Monthly Budget Breakdown</h4>
+        <div class="budget-grid">
+            ${Object.entries(budget).map(([key, val]) => `
+                <div class="budget-item">
+                    <div class="label">${icons[key] || "💰"} ${key.charAt(0).toUpperCase() + key.slice(1)}</div>
+                    <div class="amount">$${val}</div>
+                </div>
+            `).join("")}
+        </div>
+
+        <h4 style="margin-bottom:12px; color:#7C5CFC;">🎯 Your Next 30 Days</h4>
+        <ul class="action-list">
+            ${data.priorityActions.map(a => `<li>${a}</li>`).join("")}
+        </ul>
+
+        <h4 style="margin-bottom:12px; color:#7C5CFC;">📅 6-Month Plan</h4>
+        <ul class="action-list">
+            ${data.sixMonthPlan.map(a => `<li>${a}</li>`).join("")}
+        </ul>
+
+        <h4 style="margin-bottom:12px; color:#7C5CFC;">💡 Special Tips</h4>
+        <ul class="action-list">
+            ${data.specialTips.map(a => `<li>${a}</li>`).join("")}
+        </ul>
+
+        <button class="speak-btn" onclick="speakPlan('${data.voiceSummary.replace(/'/g, "\\'")}')">
+            🔊 Read My Plan Aloud
+        </button>
+    `;
+}
+
+async function speakPlan(text) {
+    try {
+        const res = await fetch(`${API_URL}/api/speak/`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ text }),
+        });
+
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const audio = new Audio(url);
+        audio.play();
+    } catch (err) {
+        alert("Voice feature failed. Check ElevenLabs API key.");
+        console.error(err);
+    }
+}
