@@ -240,6 +240,14 @@
                         <p class="muted">All fields are required. Numbers only (no negatives).</p>
                     </div>
 
+                    <!-- Voice Mode Button -->
+                    <div style="margin-bottom:24px;">
+                        <button class="btn-voice-mode" id="openVoiceModal" type="button">
+                            🎙️ Try Voice Mode
+                        </button>
+                        <p style="color:#6B647A; font-size:13px; margin-top:8px;">Answer questions out loud — we'll build your plan from your voice.</p>
+                    </div>
+
                     <form id="planForm" novalidate>
                         <div class="field">
                             <label for="persona">Persona</label>
@@ -450,6 +458,37 @@
         <h2>Frequently Asked Questions</h2>
     </section>
 
+
+    <!-- ================= VOICE MODAL ================= -->
+    <div id="voiceModal" class="voice-modal-overlay" style="display:none;">
+        <div class="voice-modal">
+            <button class="voice-modal-close" id="closeVoiceModal">✕</button>
+            <div class="voice-modal-header">
+                <div class="voice-avatar">
+                    <div class="voice-avatar-ring" id="avatarRing"></div>
+                    <div class="voice-avatar-inner">💜</div>
+                </div>
+                <h3>HerFinance Voice Assistant</h3>
+                <p id="voiceModalSubtitle">I'll ask you a few questions to build your personalized plan.</p>
+            </div>
+            <div class="voice-progress-bar">
+                <div class="voice-progress-fill" id="voiceProgressFill"></div>
+            </div>
+            <div class="voice-step-label" id="voiceStepLabel">Step 0 of 8</div>
+            <div class="voice-question-box" id="voiceQuestionBox">Press Start to begin your voice session.</div>
+            <div class="voice-answer-box" id="voiceAnswerBox" style="display:none;">
+                <span class="voice-answer-label">I heard:</span>
+                <span id="voiceAnswerText"></span>
+            </div>
+            <div class="voice-status" id="voiceStatus"></div>
+            <div class="voice-controls">
+                <button class="voice-btn-start" id="voiceStartBtn" onclick="startVoiceSession()">🎙️ Start</button>
+                <button class="voice-btn-retry" id="voiceRetryBtn" onclick="retryAnswer()" style="display:none;">🔄 Retry</button>
+                <button class="voice-btn-next" id="voiceNextBtn" onclick="confirmAndNext()" style="display:none;">✓ Confirm</button>
+            </div>
+            <div class="voice-answers-list" id="voiceAnswersList"></div>
+        </div>
+    </div>
 
     <script src="app.js"></script>
 </body>
