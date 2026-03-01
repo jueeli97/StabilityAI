@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HerFinance AI</title>
+
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+    <!-- ================= NAVBAR ================= -->
+    <header class="navbar">
+        <div class="nav-container">
+
+            <!-- Logo -->
+            <div class="logo">
+                HerFinance<span>AI</span>
+            </div>
+
+            <!-- Nav Links -->
+            <nav class="nav-links" id="navLinks">
+                <a href="#home">Home</a>
+                <a href="#about">About</a>
+                <a href="#how-it-works">How It Works</a>
+                <a href="#faq">FAQ</a>
+                <a href="#how-it-works" class="nav-btn">Start Plan</a>
+            </nav>
+
+            <!-- Hamburger -->
+            <div class="hamburger" id="hamburger">
+                ☰
+            </div>
+
+        </div>
+    </header>
+
+
+    <!-- ================= HERO SECTION ================= -->
+    <!-- ================= HERO SECTION ================= -->
+    <section id="home" class="hero">
+        <div class="hero-bg">
+            <div class="blob blob-1"></div>
+            <div class="blob blob-2"></div>
+            <div class="blob blob-3"></div>
+        </div>
+
+        <div class="hero-container">
+
+            <!-- Left Content -->
+            <div class="hero-left">
+                <div class="pill">
+                    Built for single moms & women rebuilding finances
+                </div>
+
+                <h1>
+                    Rebuild. <span>Budget.</span> Rise.
+                </h1>
+
+                <p>
+                    Get a personalized budgeting + debt payoff roadmap in minutes —
+                    designed for real-life transitions like divorce, single income, and childcare costs.
+                </p>
+
+                <div class="hero-cta">
+                    <a href="#how-it-works" class="btn-primary">Generate My Plan</a>
+                    <a href="#about" class="btn-secondary">See How It Works</a>
+                </div>
+
+                <div class="trust-row">
+                    <div class="trust-item">⏱ 2-minute setup</div>
+                    <div class="trust-item">🔒 Private by design</div>
+                    <div class="trust-item">✅ Actionable steps</div>
+                </div>
+            </div>
+
+            <!-- Right Product Preview -->
+            <div class="hero-right">
+                <div class="preview-card" aria-label="Product preview">
+                    <div class="preview-header">
+                        <div class="preview-title">Your Plan Preview</div>
+                        <div class="preview-chip" id="previewChip">Budget</div>
+                    </div>
+
+                    <div class="preview-metrics">
+                        <div class="metric">
+                            <div class="metric-label">Stability Score</div>
+                            <div class="metric-value" id="scoreValue">72</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Debt-free in</div>
+                            <div class="metric-value" id="debtValue">18 mo</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Save monthly</div>
+                            <div class="metric-value" id="saveValue">$420</div>
+                        </div>
+                    </div>
+
+                    <div class="preview-body">
+                        <!-- Slide content updates via JS -->
+                        <div class="slide-title" id="slideTitle">Monthly Budget Breakdown</div>
+                        <div class="slide-sub" id="slideSub">A plan aligned to your real-life expenses.</div>
+
+                        <div class="bars" id="bars">
+                            <div class="bar-row">
+                                <span>Essentials</span>
+                                <div class="bar">
+                                    <div class="bar-fill" style="width:55%"></div>
+                                </div>
+                                <span>55%</span>
+                            </div>
+                            <div class="bar-row">
+                                <span>Debt</span>
+                                <div class="bar">
+                                    <div class="bar-fill" style="width:20%"></div>
+                                </div>
+                                <span>20%</span>
+                            </div>
+                            <div class="bar-row">
+                                <span>Savings</span>
+                                <div class="bar">
+                                    <div class="bar-fill" style="width:15%"></div>
+                                </div>
+                                <span>15%</span>
+                            </div>
+                            <div class="bar-row">
+                                <span>Flexible</span>
+                                <div class="bar">
+                                    <div class="bar-fill" style="width:10%"></div>
+                                </div>
+                                <span>10%</span>
+                            </div>
+                        </div>
+
+                        <div class="preview-footer">
+                            <div class="dot-nav">
+                                <button class="dot active" data-slide="0" aria-label="Budget slide"></button>
+                                <button class="dot" data-slide="1" aria-label="Debt slide"></button>
+                                <button class="dot" data-slide="2" aria-label="Scenario slide"></button>
+                            </div>
+                            <div class="mini-note" id="miniNote">Tip: Automate savings weekly for consistency.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+
+    <!-- ================= ABOUT SECTION ================= -->
+    <!-- ================= ABOUT SECTION ================= -->
+    <section id="about" class="about">
+        <div class="container">
+
+            <div class="section-head">
+                <h2>Built for real-life transitions</h2>
+                <p>
+                    HerFinance AI helps women navigate income shifts, childcare costs, debt pressure, and savings goals
+                    —
+                    with clarity, confidence, and a personalized roadmap.
+                </p>
+            </div>
+
+            <div class="about-grid">
+
+                <!-- Card 1 -->
+                <div class="about-card">
+                    <div class="about-card-top">
+                        <div class="icon-badge">💜</div>
+                        <h3>Why This Matters</h3>
+                    </div>
+
+                    <p class="about-text">
+                        Life transitions can create sudden financial instability — especially for single moms and
+                        divorced women.
+                        Most budgeting tools assume stable income and shared household support, which doesn’t match
+                        reality.
+                    </p>
+
+                    <ul class="about-list">
+                        <li>Income changes + unpredictable expenses</li>
+                        <li>Childcare and essentials take priority</li>
+                        <li>Debt builds fast and feels overwhelming</li>
+                        <li>Generic advice doesn’t work for real life</li>
+                    </ul>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="about-card highlight">
+                    <div class="about-card-top">
+                        <div class="icon-badge">✨</div>
+                        <h3>Our Solution</h3>
+                    </div>
+
+                    <p class="about-text">
+                        A supportive AI assistant that turns your financial snapshot into a step-by-step recovery plan —
+                        built around your situation, dependents, and goals.
+                    </p>
+
+                    <ul class="about-list">
+                        <li>Personalized monthly budget you can actually follow</li>
+                        <li>Debt payoff strategy with a clear debt-free timeline</li>
+                        <li>Emergency fund roadmap for stability</li>
+                        <li>Scenario planning (“what if income drops?”)</li>
+                    </ul>
+
+                    <div class="about-cta-row">
+                        <a href="#how-it-works" class="mini-cta">See it in action →</a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+
+    <!-- ================= HOW IT WORKS ================= -->
+    <section id="how-it-works" class="section">
+        <h2>How It Works</h2>
+    </section>
+
+
+    <!-- ================= FAQ ================= -->
+    <section id="faq" class="section">
+        <h2>Frequently Asked Questions</h2>
+    </section>
+
+
+    <script src="app.js"></script>
+</body>
+
+</html>
