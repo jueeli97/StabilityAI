@@ -41,7 +41,7 @@
     </header>
 
 
-    
+
     <!-- ================= HERO SECTION ================= -->
     <section id="home" class="hero">
         <div class="hero-bg">
@@ -220,7 +220,7 @@
     </section>
 
 
-    
+
     <!-- ================= HOW IT WORKS ================= -->
     <section id="how-it-works" class="how">
         <div class="container">
@@ -269,21 +269,21 @@
                             </div>
                         </div>
 
-                        
-                            <div class="field">
-                                <label for="rent">Housing / Rent ($)</label>
-                                <input id="rent" name="rent" type="number" inputmode="numeric" min="0"
-                                    placeholder="e.g., 1500" required />
-                                <small class="error" data-error-for="rent"></small>
-                            </div>
 
-                            <!-- <div class="field">
+                        <div class="field">
+                            <label for="rent">Housing / Rent ($)</label>
+                            <input id="rent" name="rent" type="number" inputmode="numeric" min="0"
+                                placeholder="e.g., 1500" required />
+                            <small class="error" data-error-for="rent"></small>
+                        </div>
+
+                        <!-- <div class="field">
                                 <label for="childcare">Childcare ($)</label>
                                 <input id="childcare" name="childcare" type="number" inputmode="numeric" min="0"
                                     placeholder="e.g., 600" required />
                                 <small class="error" data-error-for="childcare"></small>
                             </div> -->
-                        
+
 
                         <!-- <div class="field-row">
                             <div class="field">
@@ -372,20 +372,25 @@
                     <!-- Results -->
                     <div id="resultsState" class="results hidden">
                         <!-- Top metrics -->
-                        <div class="metrics">
-                            <div class="metric">
-                                <div class="k">Stability Score</div>
-                                <div class="v" id="outScore">—</div>
-                            </div>
-                            <div class="metric">
-                                <div class="k">Debt-free ETA</div>
-                                <div class="v" id="outDebtEta">—</div>
-                            </div>
-                            <div class="metric">
-                                <div class="k">Monthly Savings</div>
-                                <div class="v" id="outSave">—</div>
-                            </div>
-                        </div>
+                        <div class="metrics premium-metrics">
+  <div class="metric metric-score">
+    <div class="k">Stability Score</div>
+    <div class="v" id="outScore">—</div>
+    <div class="sub">Trend: improving</div>
+  </div>
+
+  <div class="metric metric-eta">
+    <div class="k">Debt-free ETA</div>
+    <div class="v" id="outDebtEta">—</div>
+    <div class="sub">Based on current plan</div>
+  </div>
+
+  <div class="metric metric-save">
+    <div class="k">Monthly Savings</div>
+    <div class="v" id="outSave">—</div>
+    <div class="sub">Auto-transfer suggested</div>
+  </div>
+</div>
 
                         <!-- Budget chips -->
                         <div class="panel">
@@ -397,12 +402,22 @@
                         </div>
 
                         <!-- Action plan -->
-                        <div class="panel">
+                        <!-- <div class="panel">
                             <div class="panel-head">
                                 <h4>Your Next 30 Days</h4>
                                 <span class="pill-sm">Action steps</span>
                             </div>
                             <div class="steps" id="nextSteps"></div>
+                        </div> -->
+
+                        <div class="panel">
+                            <button class="accordion" type="button" id="acc30Btn">
+                                <span>Your Next 30 Days</span>
+                                <span class="chev" id="acc30Chev">▾</span>
+                            </button>
+                            <div class="accordion-body" id="acc30Body">
+                                <div class="steps" id="nextSteps"></div>
+                            </div>
                         </div>
 
                         <!-- 6-month plan accordion -->
