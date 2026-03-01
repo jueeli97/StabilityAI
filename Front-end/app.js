@@ -166,6 +166,15 @@ accBtn?.addEventListener("click", () => {
   accBody.classList.toggle("open");
 });
 
+
+const acc30Btn = document.getElementById("acc30Btn");
+const acc30Body = document.getElementById("acc30Body");
+
+acc30Btn?.addEventListener("click", () => {
+  acc30Btn.classList.toggle("open");
+  acc30Body.classList.toggle("open");
+});
+
 // Voice
 const voiceBtn = document.getElementById("voiceBtn");
 const voiceSpinner = document.getElementById("voiceSpinner");
@@ -250,12 +259,26 @@ function money(n) {
 
 function renderBudget(items) {
   budgetGrid.innerHTML = "";
-  (items || []).forEach((it) => {
+  const rows = items || [];
+
+  // total for % allocation visuals
+  const total = rows.reduce((sum, it) => sum + (Number(it.amount ?? it.value) || 0), 0) || 1;
+
+  rows.forEach((it) => {
+    const amount = Number(it.amount ?? it.value) || 0;
+    const pct = Math.max(0, Math.min(100, (amount / total) * 100));
+
     const div = document.createElement("div");
-    div.className = "chip";
+    div.className = "chip budget-chip";
     div.innerHTML = `
-      <div class="t">${it.label ?? "Item"}</div>
-      <div class="n">${money(it.amount ?? it.value)}</div>
+      <div class="chip-top">
+        <div class="t">${it.label ?? "Item"}</div>
+        <div class="pct">${Math.round(pct)}%</div>
+      </div>
+      <div class="n">${money(amount)}</div>
+      <div class="mini-bar" aria-hidden="true">
+        <div class="mini-fill" style="width:${pct}%"></div>
+      </div>
     `;
     budgetGrid.appendChild(div);
   });

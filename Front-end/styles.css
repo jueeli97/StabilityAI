@@ -1480,3 +1480,213 @@ a:hover {
 .about .about-card.highlight .about-list li{
   background: rgba(255,255,255,0.16) !important;
 }
+
+
+/* ================== HOW GRID: MATCH CARD HEIGHTS ================== */
+.how-grid{
+  align-items: stretch; /* key: cards become same height */
+}
+
+.how-card{
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* results card: keep header fixed, content uses remaining height */
+.results-card{
+  min-height: 100%;
+}
+
+.results-card #emptyState,
+.results-card #loadingState,
+.results-card #resultsState{
+  flex: 1;
+  overflow: auto;
+  padding-right: 6px;
+}
+
+/* ================== MATCH CARD HEIGHTS (SAFE) ================== */
+.how-grid{
+  align-items: stretch; /* cards equal height */
+}
+
+.how-card{
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* output card should not force emptyState to stretch */
+.results-card{
+  min-height: 100%;
+}
+
+/* Keep results area neat and not oversized */
+.results-card #emptyState,
+.results-card #loadingState,
+.results-card #resultsState{
+  margin-top: 16px;
+}
+
+/* Empty state should look centered but NOT fill the whole card */
+.empty-state{
+  min-height: 260px;
+  display: grid;
+  place-items: center;
+  padding: 22px;
+}
+
+/* Only results should scroll if content is too big */
+.results-card #resultsState{
+  max-height: 620px;     /* adjust if you want */
+  overflow: auto;
+  padding-right: 6px;
+}
+
+/* nice scroll */
+.results-card #resultsState::-webkit-scrollbar{ width: 10px; }
+.results-card #resultsState::-webkit-scrollbar-thumb{
+  background: rgba(255,255,255,0.18);
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 999px;
+}
+
+
+/* ================== PREMIUM METRICS ================== */
+.premium-metrics{
+  margin-top: 14px;
+}
+
+.premium-metrics .metric{
+  position: relative;
+  overflow: hidden;
+  padding: 14px 14px 12px;
+  border-radius: 18px;
+  background: linear-gradient(
+    180deg,
+    rgba(255,255,255,0.20) 0%,
+    rgba(255,255,255,0.12) 100%
+  );
+  border: 1px solid rgba(255,255,255,0.22);
+  box-shadow: 0 22px 55px rgba(0,0,0,0.30);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.premium-metrics .metric::before{
+  content:"";
+  position:absolute;
+  inset:-1px;
+  background:
+    radial-gradient(500px 180px at 20% 20%, rgba(243,117,194,0.22), transparent 55%),
+    radial-gradient(420px 180px at 80% 10%, rgba(177,83,215,0.24), transparent 55%);
+  opacity: 0.9;
+  pointer-events:none;
+}
+
+.premium-metrics .metric > *{
+  position: relative;
+  z-index: 1;
+}
+
+.premium-metrics .k{
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 950;
+  color: rgba(255,255,255,0.75) !important;
+  margin-bottom: 6px;
+}
+
+.premium-metrics .v{
+  font-size: 24px;
+  font-weight: 980;
+  line-height: 1.05;
+  color: rgba(255,255,255,0.98) !important;
+}
+
+.premium-metrics .sub{
+  margin-top: 8px;
+  font-size: 12px;
+  font-weight: 850;
+  color: rgba(255,255,255,0.76);
+}
+
+/* subtle “premium chip” corner tag */
+.premium-metrics .metric::after{
+  content: "LIVE";
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  font-size: 10px;
+  font-weight: 950;
+  letter-spacing: 0.10em;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.22);
+  background: rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.85);
+}
+
+.premium-metrics .metric-score::after{ content:"SCORE"; }
+.premium-metrics .metric-eta::after{ content:"TIMELINE"; }
+.premium-metrics .metric-save::after{ content:"SAVINGS"; }
+
+
+
+/* ================== BUDGET BREAKDOWN: MINI BARS ================== */
+.budget-chip{
+  padding: 12px 12px 14px;
+}
+
+.budget-chip .chip-top{
+  display:flex;
+  align-items:center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.budget-chip .pct{
+  font-size: 11px;
+  font-weight: 950;
+  color: rgba(255,255,255,0.72);
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.20);
+  background: rgba(255,255,255,0.10);
+}
+
+.mini-bar{
+  margin-top: 10px;
+  height: 9px;
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.18);
+  background: rgba(255,255,255,0.12);
+}
+
+.mini-fill{
+  height: 100%;
+  width: 0%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #4D2FB2 0%, #B153D7 60%, #F375C2 100%);
+  transition: width 0.6s ease;
+}
+
+
+/* KPIs should be a real dashboard row */
+.metrics.premium-metrics{
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: 14px;
+}
+
+/* Ensure KPIs don't become tall pills */
+.metrics.premium-metrics .metric{
+  min-height: 96px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
