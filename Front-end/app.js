@@ -200,6 +200,7 @@ function showResults() {
   loadingState.classList.add("hidden");
   emptyState.classList.add("hidden");
   resultsState.classList.remove("hidden");
+  renderPartnerCarousel();
 }
 
 function clearErrors() {
@@ -989,4 +990,153 @@ function updateKpiRings({ score, debtMonths, income, monthlySave }) {
     const ratio = clamp((monthlySave / (income * 0.20)) * 100, 0, 100);
     setRing(saveRing, ratio);
   }
+}
+
+// ================= PARTNER CAROUSEL =================
+const PARTNERS = [
+  {
+    emoji: "💳",
+    logoBg: "linear-gradient(135deg,#c0392b,#e74c3c)",
+    name: "Capital One",
+    type: "Banking & Credit Cards",
+    desc: "Fee-free checking, high-yield savings, and credit cards with cash back rewards — all in one place.",
+    tags: ["No Fees", "Cash Back", "FDIC Insured"],
+    highlight: "Cash Back",
+    cta: "Explore Capital One",
+    url: "https://www.capitalone.com",
+  },
+  {
+    emoji: "🏦",
+    logoBg: "linear-gradient(135deg,#1a3a8f,#2d5be3)",
+    name: "Marcus by Goldman Sachs",
+    type: "High-Yield Savings",
+    desc: "No-fee high-yield savings account. Great for building your emergency fund fast.",
+    tags: ["FDIC Insured", "No Fees", "High APY"],
+    highlight: "High APY",
+    cta: "Open Account",
+    url: "https://www.marcus.com",
+  },
+  {
+    emoji: "📉",
+    logoBg: "linear-gradient(135deg,#6B21A8,#a855f7)",
+    name: "Tally",
+    type: "Debt Management",
+    desc: "Automates credit card debt payoff using the avalanche method to save on interest.",
+    tags: ["Debt Payoff", "Auto-Pay", "Low APR"],
+    highlight: "Debt Payoff",
+    cta: "Reduce My Debt",
+    url: "https://www.meettally.com",
+  },
+  {
+    emoji: "📈",
+    logoBg: "linear-gradient(135deg,#065f46,#10b981)",
+    name: "Ellevest",
+    type: "Investment Platform",
+    desc: "Built for women. Goal-based investing plans designed around real-life financial milestones.",
+    tags: ["Women-Focused", "Goal Planning", "ETFs"],
+    highlight: "Women-Focused",
+    cta: "Start Investing",
+    url: "https://www.ellevest.com",
+  },
+  {
+    emoji: "🛡️",
+    logoBg: "linear-gradient(135deg,#7c2d12,#f97316)",
+    name: "Self Financial",
+    type: "Credit Building",
+    desc: "Credit-builder loans that report to all 3 bureaus. Rebuild your score while saving.",
+    tags: ["Credit Builder", "No Hard Pull", "Savings"],
+    highlight: "Credit Builder",
+    cta: "Build Credit",
+    url: "https://www.self.inc",
+  },
+  {
+    emoji: "💳",
+    logoBg: "linear-gradient(135deg,#1e3a5f,#0ea5e9)",
+    name: "SoFi",
+    type: "Loans & Banking",
+    desc: "Personal loans at competitive rates plus banking and investing all in one place.",
+    tags: ["Personal Loans", "No Fees", "Banking"],
+    highlight: "No Fees",
+    cta: "Explore Options",
+    url: "https://www.sofi.com",
+  },
+  {
+    emoji: "🌱",
+    logoBg: "linear-gradient(135deg,#14532d,#22c55e)",
+    name: "Acorns",
+    type: "Micro-Investing",
+    desc: "Round up everyday purchases and invest the spare change. Start with as little as $5.",
+    tags: ["Micro-Invest", "Auto Round-Up", "ETFs"],
+    highlight: "Micro-Invest",
+    cta: "Start Saving",
+    url: "https://www.acorns.com",
+  },
+];
+
+let partnerIndex = 0;
+const VISIBLE = 2; // cards visible at once
+
+function renderPartnerCarousel() {
+  const track = document.getElementById("partnerTrack");
+  const dotsWrap = document.getElementById("partnerDots");
+  if (!track || !dotsWrap) return;
+
+  // Build cards
+  track.innerHTML = PARTNERS.map((p, i) => `
+    <a class="partner-card" href="${p.url}" target="_blank" rel="noopener noreferrer" data-index="${i}">
+      <div class="partner-card-top">
+        <div class="partner-logo" style="background:${p.logoBg}">${p.emoji}</div>
+        <div>
+          <div class="partner-name">${p.name}</div>
+          <div class="partner-type">${p.type}</div>
+        </div>
+      </div>
+      <div class="partner-desc">${p.desc}</div>
+      <div class="partner-tags">
+        ${p.tags.map(t => `<span class="partner-tag${t === p.highlight ? " highlight" : ""}">${t}</span>`).join("")}
+      </div>
+      <div class="partner-cta">${p.cta}</div>
+    </a>
+  `).join("");
+
+  // Build dots (one per slide position)
+  const totalSlides = PARTNERS.length - VISIBLE + 1;
+  dotsWrap.innerHTML = Array.from({ length: totalSlides }, (_, i) =>
+    `<button class="partner-dot${i === 0 ? " active" : ""}" data-pos="${i}" aria-label="Slide ${i + 1}"></button>`
+  ).join("");
+
+  dotsWrap.querySelectorAll(".partner-dot").forEach(d => {
+    d.addEventListener("click", () => goToPartner(Number(d.dataset.pos)));
+  });
+
+  partnerIndex = 0;
+  updatePartnerTrack();
+
+  document.getElementById("partnerPrev")?.addEventListener("click", () => {
+    goToPartner(partnerIndex - 1);
+  });
+  document.getElementById("partnerNext")?.addEventListener("click", () => {
+    goToPartner(partnerIndex + 1);
+  });
+}
+
+function goToPartner(pos) {
+  const totalSlides = PARTNERS.length - VISIBLE + 1;
+  partnerIndex = Math.max(0, Math.min(pos, totalSlides - 1));
+  updatePartnerTrack();
+}
+
+function updatePartnerTrack() {
+  const track = document.getElementById("partnerTrack");
+  if (!track) return;
+  // card width = (100% - gap) / 2 — but we use CSS flex so we shift by card+gap units
+  const cardEl = track.querySelector(".partner-card");
+  if (!cardEl) return;
+  const cardW = cardEl.offsetWidth + 12; // 12 = gap
+  track.style.transform = `translateX(-${partnerIndex * cardW}px)`;
+
+  // update dots
+  document.querySelectorAll(".partner-dot").forEach((d, i) => {
+    d.classList.toggle("active", i === partnerIndex);
+  });
 }
