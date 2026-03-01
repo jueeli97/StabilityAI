@@ -1631,3 +1631,333 @@ a:hover {
 }
 .vca-label { color: #6B647A; }
 .vca-value { font-weight: 600; color: #4D2FB2; }
+
+
+
+/* ================= CLEAN KPI TILES (READABLE) ================= */
+.clean-kpis{
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin: 12px 0 14px;
+}
+
+.kpi-card{
+  border-radius: 18px;
+  padding: 16px;
+  border: 1px solid rgba(255,255,255,0.18);
+  background: rgba(255,255,255,0.10);
+  box-shadow: 0 18px 55px rgba(0,0,0,0.28);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.kpi-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.kpi-label{
+  font-size: 12px;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.92);
+}
+
+.kpi-help{
+  margin-top: 6px;
+  font-size: 12px;
+  font-weight: 800;
+  color: rgba(255,255,255,0.72);
+  line-height: 1.25;
+}
+
+.kpi-pill{
+  padding: 7px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 950;
+  letter-spacing: 0.06em;
+  border: 1px solid rgba(255,255,255,0.18);
+  background: rgba(0,0,0,0.10);
+  color: rgba(255,255,255,0.86);
+  white-space: nowrap;
+}
+
+.kpi-pill.muted{
+  opacity: 0.85;
+}
+
+.kpi-pill.accent{
+  border-color: rgba(243,117,194,0.35);
+  box-shadow: 0 14px 35px rgba(243,117,194,0.18);
+}
+
+.kpi-main{
+  margin-top: 14px;
+  display:flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.kpi-number{
+  font-size: 26px;
+  font-weight: 980;
+  line-height: 1.05;
+  color: rgba(255,255,255,0.98);
+}
+
+.kpi-unit{
+  font-size: 13px;
+  font-weight: 900;
+  color: rgba(255,255,255,0.70);
+}
+
+.kpi-foot{
+  margin-top: 10px;
+  font-size: 12px;
+  font-weight: 850;
+  color: rgba(255,255,255,0.70);
+}
+
+/* Responsive */
+@media (max-width: 980px){
+  .clean-kpis{ grid-template-columns: 1fr; }
+}
+
+
+/* ================= KPI TILES (Dashboard style) ================= */
+/* Paste at END of styles.css so it overrides older KPI CSS */
+
+.kpi-tiles{
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin: 12px 0 16px;
+}
+
+/* Clean card like the reference dashboard, but purple glass */
+.kpi-tile{
+  border-radius: 18px;
+  padding: 16px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.14), rgba(255,255,255,0.08));
+  border: 1px solid rgba(255,255,255,0.18);
+  box-shadow: 0 22px 70px rgba(0,0,0,0.28);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+.kpi-top{
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: nowrap;
+  min-width: 0;
+}
+
+.kpi-title{
+  font-size: 13px;
+  font-weight: 950;
+  letter-spacing: -0.01em;
+  color: rgba(255,255,255,0.96);
+}
+
+.kpi-meta{
+  min-width: 0;
+  flex: 1;
+}
+
+.kpi-sub{
+  margin-top: 6px;
+  font-size: 12px;
+  font-weight: 750;
+  color: rgba(255,255,255,0.72);
+}
+
+/* Badge (top-right) */
+.kpi-badge{
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 900;
+  border: 1px solid rgba(255,255,255,0.18);
+  background: rgba(0,0,0,0.12);
+  color: rgba(255,255,255,0.88);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.kpi-badge .kpi-arrow{
+  font-size: 12px;
+  opacity: 0.95;
+}
+
+.kpi-badge.up{
+  border-color: rgba(177,83,215,0.45);
+  box-shadow: 0 14px 34px rgba(177,83,215,0.16);
+}
+
+.kpi-badge.down{
+  border-color: rgba(243,117,194,0.45);
+  box-shadow: 0 14px 34px rgba(243,117,194,0.16);
+}
+
+.kpi-badge.neutral{
+  opacity: 0.9;
+}
+
+/* Bottom row: big number + ring */
+.kpi-bottom{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.kpi-value{
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-height: 44px;
+}
+
+.kpi-num{
+  font-size: 26px;
+  font-weight: 980;
+  line-height: 1.05;
+  color: rgba(255,255,255,0.98);
+}
+
+.kpi-suffix{
+  font-size: 13px;
+  font-weight: 850;
+  color: rgba(255,255,255,0.70);
+}
+
+/* Ring: uses conic-gradient and data-pct */
+.kpi-ring{
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background:
+    conic-gradient(
+      rgba(243,117,194,0.95) calc(var(--pct, 0) * 1%),
+      rgba(255,255,255,0.14) 0
+    );
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255,255,255,0.18);
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.10);
+  flex-shrink: 0;
+}
+
+.kpi-ring-center{
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.18);
+  border: 1px solid rgba(255,255,255,0.12);
+  backdrop-filter: blur(10px);
+}
+
+/* Footnote (only in some cards) */
+.kpi-footnote{
+  font-size: 11px;
+  font-weight: 800;
+  color: rgba(255,255,255,0.72);
+}
+
+/* Responsive */
+@media (max-width: 980px){
+  .kpi-tiles{ grid-template-columns: 1fr; }
+  .kpi-ring{ width: 42px; height: 42px; }
+  .kpi-ring-center{ width: 28px; height: 28px; }
+}
+
+/* ===== KPI overflow fix: keep KPI cards inside output card ===== */
+
+/* Ensure the results area can’t exceed its parent width */
+.results-card,
+#resultsState {
+  max-width: 100%;
+}
+
+/* The key fix: allow grid columns to shrink (minmax(0,1fr)) */
+.clean-kpis {
+  width: 100%;
+  max-width: 100%;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+/* Prevent any child from forcing overflow */
+.clean-kpis > * {
+  min-width: 0;
+}
+
+/* Make sure long text doesn’t stretch the card */
+.kpi-card,
+.kpi-head > div,
+.kpi-help,
+.kpi-label {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+/* Small screens */
+@media (max-width: 980px) {
+  .clean-kpis {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* ===== KPI TILES overflow fix (your layout uses .kpi-tiles, not .clean-kpis) ===== */
+
+#resultsState,
+.kpi-row.kpi-tiles {
+  width: 100%;
+  max-width: 100%;
+}
+
+/* The key: allow grid tracks to shrink */
+.kpi-tiles {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  overflow: hidden; /* extra safety */
+}
+
+/* Allow grid children to shrink instead of forcing overflow */
+.kpi-tiles > .kpi-tile {
+  min-width: 0;
+}
+
+/* Prevent inner content from forcing min-content width */
+.kpi-meta,
+.kpi-title,
+.kpi-sub,
+.kpi-footnote {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.kpi-sub {
+  width: 150px;
+}
+
+/* If the badge is causing squeeze, allow wrapping */
+.kpi-badge {
+  white-space: nowrap; /* keep on one line */
+  flex-shrink: 0;
+}
