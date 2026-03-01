@@ -1481,212 +1481,153 @@ a:hover {
   background: rgba(255,255,255,0.16) !important;
 }
 
-
-/* ================== HOW GRID: MATCH CARD HEIGHTS ================== */
-.how-grid{
-  align-items: stretch; /* key: cards become same height */
+/* ===== VOICE MODE BUTTON ===== */
+.btn-voice-mode {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #7C5CFC, #B153D7);
+  color: #fff;
+  border: none;
+  border-radius: 50px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.2s;
 }
+.btn-voice-mode:hover { opacity: 0.88; transform: translateY(-1px); }
 
-.how-card{
-  height: 100%;
+/* ===== VOICE MODAL ===== */
+.voice-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(17, 12, 46, 0.55);
+  backdrop-filter: blur(4px);
+  z-index: 9999;
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
 }
-
-/* results card: keep header fixed, content uses remaining height */
-.results-card{
-  min-height: 100%;
+.voice-modal {
+  background: #fff;
+  border-radius: 20px;
+  padding: 36px 32px 28px;
+  width: 100%;
+  max-width: 480px;
+  position: relative;
+  box-shadow: 0 24px 80px rgba(17,12,46,0.18);
 }
-
-.results-card #emptyState,
-.results-card #loadingState,
-.results-card #resultsState{
-  flex: 1;
-  overflow: auto;
-  padding-right: 6px;
+.voice-modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  color: #6B647A;
 }
-
-/* ================== MATCH CARD HEIGHTS (SAFE) ================== */
-.how-grid{
-  align-items: stretch; /* cards equal height */
+.voice-modal-close:hover { color: #1F1B2E; }
+.voice-modal-header {
+  text-align: center;
+  margin-bottom: 20px;
 }
-
-.how-card{
-  height: 100%;
+.voice-avatar {
+  position: relative;
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 12px;
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
-
-/* output card should not force emptyState to stretch */
-.results-card{
-  min-height: 100%;
-}
-
-/* Keep results area neat and not oversized */
-.results-card #emptyState,
-.results-card #loadingState,
-.results-card #resultsState{
-  margin-top: 16px;
-}
-
-/* Empty state should look centered but NOT fill the whole card */
-.empty-state{
-  min-height: 260px;
-  display: grid;
-  place-items: center;
-  padding: 22px;
-}
-
-/* Only results should scroll if content is too big */
-.results-card #resultsState{
-  max-height: 620px;     /* adjust if you want */
-  overflow: auto;
-  padding-right: 6px;
-}
-
-/* nice scroll */
-.results-card #resultsState::-webkit-scrollbar{ width: 10px; }
-.results-card #resultsState::-webkit-scrollbar-thumb{
-  background: rgba(255,255,255,0.18);
-  border: 1px solid rgba(255,255,255,0.18);
-  border-radius: 999px;
-}
-
-
-/* ================== PREMIUM METRICS ================== */
-.premium-metrics{
-  margin-top: 14px;
-}
-
-.premium-metrics .metric{
-  position: relative;
-  overflow: hidden;
-  padding: 14px 14px 12px;
-  border-radius: 18px;
-  background: linear-gradient(
-    180deg,
-    rgba(255,255,255,0.20) 0%,
-    rgba(255,255,255,0.12) 100%
-  );
-  border: 1px solid rgba(255,255,255,0.22);
-  box-shadow: 0 22px 55px rgba(0,0,0,0.30);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-}
-
-.premium-metrics .metric::before{
-  content:"";
-  position:absolute;
-  inset:-1px;
-  background:
-    radial-gradient(500px 180px at 20% 20%, rgba(243,117,194,0.22), transparent 55%),
-    radial-gradient(420px 180px at 80% 10%, rgba(177,83,215,0.24), transparent 55%);
-  opacity: 0.9;
-  pointer-events:none;
-}
-
-.premium-metrics .metric > *{
-  position: relative;
+.voice-avatar-inner {
+  font-size: 32px;
   z-index: 1;
 }
-
-.premium-metrics .k{
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  font-weight: 950;
-  color: rgba(255,255,255,0.75) !important;
+.voice-avatar-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  transition: border-color 0.3s;
+}
+.voice-avatar-ring.speaking {
+  border-color: #B153D7;
+  animation: pulse-ring 1s ease-in-out infinite;
+}
+.voice-avatar-ring.listening {
+  border-color: #7C5CFC;
+  animation: pulse-ring 0.6s ease-in-out infinite;
+}
+@keyframes pulse-ring {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.12); opacity: 0.6; }
+}
+.voice-modal-header h3 { font-size: 18px; font-weight: 700; color: #1F1B2E; margin-bottom: 4px; }
+.voice-modal-header p { font-size: 13px; color: #6B647A; }
+.voice-progress-bar {
+  height: 6px;
+  background: #EDEDF5;
+  border-radius: 99px;
+  overflow: hidden;
   margin-bottom: 6px;
 }
-
-.premium-metrics .v{
-  font-size: 24px;
-  font-weight: 980;
-  line-height: 1.05;
-  color: rgba(255,255,255,0.98) !important;
-}
-
-.premium-metrics .sub{
-  margin-top: 8px;
-  font-size: 12px;
-  font-weight: 850;
-  color: rgba(255,255,255,0.76);
-}
-
-/* subtle “premium chip” corner tag */
-.premium-metrics .metric::after{
-  content: "LIVE";
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  font-size: 10px;
-  font-weight: 950;
-  letter-spacing: 0.10em;
-  padding: 6px 10px;
-  border-radius: 999px;
-  border: 1px solid rgba(255,255,255,0.22);
-  background: rgba(255,255,255,0.12);
-  color: rgba(255,255,255,0.85);
-}
-
-.premium-metrics .metric-score::after{ content:"SCORE"; }
-.premium-metrics .metric-eta::after{ content:"TIMELINE"; }
-.premium-metrics .metric-save::after{ content:"SAVINGS"; }
-
-
-
-/* ================== BUDGET BREAKDOWN: MINI BARS ================== */
-.budget-chip{
-  padding: 12px 12px 14px;
-}
-
-.budget-chip .chip-top{
-  display:flex;
-  align-items:center;
-  justify-content: space-between;
-  gap: 10px;
-}
-
-.budget-chip .pct{
-  font-size: 11px;
-  font-weight: 950;
-  color: rgba(255,255,255,0.72);
-  padding: 6px 10px;
-  border-radius: 999px;
-  border: 1px solid rgba(255,255,255,0.20);
-  background: rgba(255,255,255,0.10);
-}
-
-.mini-bar{
-  margin-top: 10px;
-  height: 9px;
-  border-radius: 999px;
-  overflow: hidden;
-  border: 1px solid rgba(255,255,255,0.18);
-  background: rgba(255,255,255,0.12);
-}
-
-.mini-fill{
+.voice-progress-fill {
   height: 100%;
+  background: linear-gradient(90deg, #7C5CFC, #B153D7);
+  border-radius: 99px;
+  transition: width 0.4s ease;
   width: 0%;
-  border-radius: 999px;
-  background: linear-gradient(90deg, #4D2FB2 0%, #B153D7 60%, #F375C2 100%);
-  transition: width 0.6s ease;
 }
-
-
-/* KPIs should be a real dashboard row */
-.metrics.premium-metrics{
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  margin-top: 14px;
+.voice-step-label { font-size: 12px; color: #6B647A; margin-bottom: 16px; }
+.voice-question-box {
+  background: #F7F5FF;
+  border-radius: 12px;
+  padding: 14px 16px;
+  font-size: 14px;
+  color: #1F1B2E;
+  line-height: 1.5;
+  margin-bottom: 14px;
 }
-
-/* Ensure KPIs don't become tall pills */
-.metrics.premium-metrics .metric{
-  min-height: 96px;
+.voice-answer-box {
+  background: #EDF7EE;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: #1F1B2E;
+  margin-bottom: 12px;
+}
+.voice-answer-label { font-weight: 600; margin-right: 6px; color: #4D2FB2; }
+.voice-status { font-size: 13px; color: #6B647A; min-height: 20px; margin-bottom: 14px; }
+.voice-controls { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 16px; }
+.voice-btn-start, .voice-btn-retry, .voice-btn-next {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 22px;
+  border-radius: 50px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: opacity 0.2s;
+}
+.voice-btn-start { background: linear-gradient(135deg, #7C5CFC, #B153D7); color: #fff; }
+.voice-btn-retry { background: #F0EEFF; color: #4D2FB2; }
+.voice-btn-next { background: #4D2FB2; color: #fff; }
+.voice-btn-start:hover, .voice-btn-retry:hover, .voice-btn-next:hover { opacity: 0.85; }
+.voice-answers-list { display: flex; flex-direction: column; gap: 6px; max-height: 160px; overflow-y: auto; }
+.voice-collected-answer {
   display: flex;
-  flex-direction: column;
   justify-content: space-between;
+  align-items: center;
+  background: #F7F5FF;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 13px;
 }
+.vca-label { color: #6B647A; }
+.vca-value { font-weight: 600; color: #4D2FB2; }
