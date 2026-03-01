@@ -20,7 +20,7 @@
 
             <!-- Logo -->
             <div class="logo">
-                HerFinance<span>AI</span>
+                HerRestartAI<span>AI</span>
             </div>
 
             <!-- Nav Links -->
@@ -245,7 +245,8 @@
                         <button class="btn-voice-mode" id="openVoiceModal" type="button">
                             🎙️ Try Voice Mode
                         </button>
-                        <p style="color:#6B647A; font-size:13px; margin-top:8px;">Answer questions out loud — we'll build your plan from your voice.</p>
+                        <p style="color:#6B647A; font-size:13px; margin-top:8px;">Answer questions out loud — we'll
+                            build your plan from your voice.</p>
                     </div>
 
                     <form id="planForm" novalidate>
@@ -380,43 +381,100 @@
                     <!-- Results -->
                     <div id="resultsState" class="results hidden">
                         <!-- Top metrics -->
-                        <div class="metrics premium-metrics">
-  <div class="metric metric-score">
-    <div class="k">Stability Score</div>
-    <div class="v" id="outScore">—</div>
-    <div class="sub">Trend: improving</div>
-  </div>
+                        <div class="kpi-row kpi-tiles">
+                            <!-- 1) Stability -->
+                            <div class="kpi-tile">
+                                <div class="kpi-top">
+                                    <div class="kpi-meta">
+                                        <div class="kpi-title">Stability Score</div>
+                                        <div class="kpi-sub" id="kpiScoreSub">Trend: improving</div>
+                                    </div>
 
-  <div class="metric metric-eta">
-    <div class="k">Debt-free ETA</div>
-    <div class="v" id="outDebtEta">—</div>
-    <div class="sub">Based on current plan</div>
-  </div>
+                                    <div class="kpi-badge up" id="kpiScoreChip">
+                                        <span class="kpi-arrow">↗</span>
+                                        <span>Stable</span>
+                                    </div>
+                                </div>
 
-  <div class="metric metric-save">
-    <div class="k">Monthly Savings</div>
-    <div class="v" id="outSave">—</div>
-    <div class="sub">Auto-transfer suggested</div>
-  </div>
-</div>
+                                <div class="kpi-bottom">
+                                    <div class="kpi-value">
+                                        <span class="kpi-num" id="outScore">—</span>
+                                        <span class="kpi-suffix">/100</span>
+                                    </div>
 
-                        <!-- Budget chips -->
+                                    <div class="kpi-ring" data-pct="0" aria-label="Stability score ring">
+                                        <div class="kpi-ring-center"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 2) Debt -->
+                            <div class="kpi-tile">
+                                <div class="kpi-top">
+                                    <div class="kpi-meta">
+                                        <div class="kpi-title">Debt-free ETA</div>
+                                        <div class="kpi-sub">Based on current plan</div>
+                                    </div>
+
+                                    <div class="kpi-badge neutral">
+                                        <span class="kpi-arrow">⏳</span>
+                                        <span>Timeline</span>
+                                    </div>
+                                </div>
+
+                                <div class="kpi-bottom">
+                                    <div class="kpi-value">
+                                        <span class="kpi-num" id="outDebtEta">—</span>
+                                    </div>
+
+                                    <div class="kpi-ring" data-pct="0" aria-label="Debt timeline ring">
+                                        <div class="kpi-ring-center"></div>
+                                    </div>
+                                </div>
+
+                                <div class="kpi-footnote">Focus: highest APR first</div>
+                            </div>
+
+                            <!-- 3) Savings -->
+                            <div class="kpi-tile">
+                                <div class="kpi-top">
+                                    <div class="kpi-meta">
+                                        <div class="kpi-title">Monthly Savings</div>
+                                        <div class="kpi-sub">Auto-transfer suggested</div>
+                                    </div>
+
+                                    <div class="kpi-badge down">
+                                        <span class="kpi-arrow">↘</span>
+                                        <span>Savings</span>
+                                    </div>
+                                </div>
+
+                                <div class="kpi-bottom">
+                                    <div class="kpi-value">
+                                        <span class="kpi-num" id="outSave">—</span>
+                                    </div>
+
+                                    <div class="kpi-ring" data-pct="0" aria-label="Savings ring">
+                                        <div class="kpi-ring-center"></div>
+                                    </div>
+                                </div>
+
+                                <div class="kpi-footnote">Set weekly automation</div>
+                            </div>
+                        </div>
+
+
+                        <!-- Action plan -->
+
                         <div class="panel">
                             <div class="panel-head">
                                 <h4>Monthly Budget Breakdown</h4>
-                                <span class="pill-sm" id="outMethod">Recommended</span>
+                                <span class="pill-sm" id="outMethod">Personalized</span>
                             </div>
+
+                            <!-- Cards only -->
                             <div class="chip-grid" id="budgetGrid"></div>
                         </div>
-
-                        <!-- Action plan -->
-                        <!-- <div class="panel">
-                            <div class="panel-head">
-                                <h4>Your Next 30 Days</h4>
-                                <span class="pill-sm">Action steps</span>
-                            </div>
-                            <div class="steps" id="nextSteps"></div>
-                        </div> -->
 
                         <div class="panel">
                             <button class="accordion" type="button" id="acc30Btn">
@@ -498,8 +556,10 @@
             <div class="voice-status" id="voiceStatus"></div>
             <div class="voice-controls">
                 <button class="voice-btn-start" id="voiceStartBtn" onclick="startVoiceSession()">🎙️ Start</button>
-                <button class="voice-btn-retry" id="voiceRetryBtn" onclick="retryAnswer()" style="display:none;">🔄 Retry</button>
-                <button class="voice-btn-next" id="voiceNextBtn" onclick="confirmAndNext()" style="display:none;">✓ Confirm</button>
+                <button class="voice-btn-retry" id="voiceRetryBtn" onclick="retryAnswer()" style="display:none;">🔄
+                    Retry</button>
+                <button class="voice-btn-next" id="voiceNextBtn" onclick="confirmAndNext()" style="display:none;">✓
+                    Confirm</button>
             </div>
             <div class="voice-answers-list" id="voiceAnswersList"></div>
         </div>

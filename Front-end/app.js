@@ -257,11 +257,70 @@ function money(n) {
   return val.toLocaleString(undefined, { style: "currency", currency: "USD", maximumFractionDigits: 0 });
 }
 
+
+function clamp(n, min, max) { return Math.max(min, Math.min(max, n)); }
+
+function computeStabilityScore({ income, rent, debtTotal, apr, monthlySave }) {
+  // Simple heuristic so you always show a score (0–100)
+  const inc = Number(income || 0);
+  const rentRatio = inc ? Number(rent || 0) / inc : 0;
+  const saveRatio = inc ? Number(monthlySave || 0) / inc : 0;
+  const debtRatio = inc ? Number(debtTotal || 0) / (inc * 6) : 0; // debt vs ~6 months income
+  const aprScore = 1 - clamp(Number(apr || 0) / 30, 0, 1);
+
+  let score =
+    100
+    - (rentRatio * 35)
+    - (debtRatio * 35)
+    + (saveRatio * 45)
+    + (aprScore * 10);
+
+  return Math.round(clamp(score, 0, 100));
+}
+
+function setScoreChip(score) {
+  const chip = document.getElementById("kpiScoreChip");
+  const sub = document.getElementById("kpiScoreSub");
+  if (!chip || !sub) return;
+
+  if (score >= 75) { chip.textContent = "Strong"; sub.textContent = "Trend: improving"; }
+  else if (score >= 55) { chip.textContent = "Stable"; sub.textContent = "Trend: steady"; }
+  else { chip.textContent = "At Risk"; sub.textContent = "Trend: needs focus"; }
+}
+
+
+// function renderBudget(items) {
+//   budgetGrid.innerHTML = "";
+//   const rows = items || [];
+
+//   // total for % allocation visuals
+//   const total = rows.reduce((sum, it) => sum + (Number(it.amount ?? it.value) || 0), 0) || 1;
+
+//   rows.forEach((it) => {
+//     const amount = Number(it.amount ?? it.value) || 0;
+//     const pct = Math.max(0, Math.min(100, (amount / total) * 100));
+
+//     const div = document.createElement("div");
+//     div.className = "chip budget-chip";
+//     div.innerHTML = `
+//       <div class="chip-top">
+//         <div class="t">${it.label ?? "Item"}</div>
+//         <div class="pct">${Math.round(pct)}%</div>
+//       </div>
+//       <div class="n">${money(amount)}</div>
+//       <div class="mini-bar" aria-hidden="true">
+//         <div class="mini-fill" style="width:${pct}%"></div>
+//       </div>
+//     `;
+//     budgetGrid.appendChild(div);
+//   });
+// }
+
+
 function renderBudget(items) {
   budgetGrid.innerHTML = "";
   const rows = items || [];
 
-  // total for % allocation visuals
   const total = rows.reduce((sum, it) => sum + (Number(it.amount ?? it.value) || 0), 0) || 1;
 
   rows.forEach((it) => {
@@ -280,12 +339,16 @@ function renderBudget(items) {
         <div class="mini-fill" style="width:${pct}%"></div>
       </div>
     `;
+
     budgetGrid.appendChild(div);
   });
 }
 
+
 function renderSteps(container, stepsArr) {
+  if (!container) return; // ✅ prevents "Cannot set properties of null"
   container.innerHTML = "";
+
   (stepsArr || []).forEach((s, idx) => {
     const row = document.createElement("div");
     row.className = "step";
@@ -296,6 +359,7 @@ function renderSteps(container, stepsArr) {
     container.appendChild(row);
   });
 }
+
 
 // ---- Submit handler
 form?.addEventListener("submit", async (e) => {
@@ -395,7 +459,23 @@ form?.addEventListener("submit", async (e) => {
     const outDebt = bb.debt ? `${Math.max(6, Math.round(Number(data.debtTotal) / Math.max(1, bb.debt)))} mo` : "—";
     const outMonthlySave = bb.emergency || bb.investment || 0;
 
-    outScore.textContent = "—";             // backend doesn't provide score
+    const score = computeStabilityScore({
+      income: Number(data.income),
+      rent: Number(data.rent),
+      debtTotal: Number(data.debtTotal),
+      apr: Number(data.apr),
+      monthlySave: outMonthlySave,
+    });
+
+    outScore.textContent = score;
+    setScoreChip(score); // you already have this
+
+    updateKpiRings({
+      score,
+      debtMonths: parseMonths(outDebt),
+      income: Number(data.income),
+      monthlySave: outMonthlySave,
+    });           // backend doesn't provide score
     outDebtEta.textContent = outDebt;
     outSave.textContent = money(outMonthlySave);
     outMethod.textContent = "Personalized";
@@ -678,7 +758,7 @@ function parseVoiceAnswer(transcript, q) {
   if (q.type === "number") {
     const numMatch = transcript.replace(/,/g, "").match(/[\d.]+/);
     if (numMatch) return parseFloat(numMatch[0]);
-    const wordMap = { zero:0,a:1,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20,thirty:30,forty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90,hundred:100,thousand:1000,grand:1000,k:1000 };
+    const wordMap = { zero: 0, a: 1, one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10, eleven: 11, twelve: 12, thirteen: 13, fourteen: 14, fifteen: 15, sixteen: 16, seventeen: 17, eighteen: 18, nineteen: 19, twenty: 20, thirty: 30, forty: 40, fifty: 50, sixty: 60, seventy: 70, eighty: 80, ninety: 90, hundred: 100, thousand: 1000, grand: 1000, k: 1000 };
     const words = transcript.toLowerCase().replace(/\$/g, "").split(/[\s,]+/);
     let total = 0, current = 0;
     for (const w of words) {
@@ -867,4 +947,46 @@ function setAvatarState(state) {
   ring.classList.remove("speaking", "listening");
   if (state === "speaking") ring.classList.add("speaking");
   if (state === "listening") ring.classList.add("listening");
+}
+
+
+function setRing(el, pct0to100) {
+  if (!el) return;
+  const pct = clamp(Number(pct0to100) || 0, 0, 100);
+  el.style.setProperty("--pct", pct);
+  el.dataset.pct = String(pct);
+}
+
+function parseMonths(text) {
+  const m = String(text || "").match(/(\d+)\s*mo/i);
+  return m ? Number(m[1]) : null;
+}
+
+function parseMoney(text) {
+  const n = String(text || "").replace(/[^0-9.]/g, "");
+  const v = Number(n);
+  return Number.isFinite(v) ? v : null;
+}
+
+function updateKpiRings({ score, debtMonths, income, monthlySave }) {
+  const rings = document.querySelectorAll(".kpi-ring");
+  const scoreRing = rings[0];
+  const debtRing = rings[1];
+  const saveRing = rings[2];
+
+  // Score ring = score%
+  setRing(scoreRing, score);
+
+  // Debt ring: faster payoff => higher ring fill
+  // map 0..36 months -> 100..0 (cap)
+  if (debtMonths != null) {
+    const debtPct = 100 - clamp((debtMonths / 36) * 100, 0, 100);
+    setRing(debtRing, debtPct);
+  }
+
+  // Savings ring: % of income saved, target 20% = 100%
+  if (income > 0 && monthlySave != null) {
+    const ratio = clamp((monthlySave / (income * 0.20)) * 100, 0, 100);
+    setRing(saveRing, ratio);
+  }
 }
