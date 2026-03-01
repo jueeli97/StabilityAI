@@ -222,8 +222,30 @@
 
 
     <!-- ================= HOW IT WORKS ================= -->
+    <!-- ================= HOW IT WORKS ================= -->
     <section id="how-it-works" class="section">
-        <h2>How It Works</h2>
+        <h2>Get Your Personalized Plan</h2>
+        <p style="color:#6B647A; margin-bottom:30px;">Fill in your details and let AI build your roadmap.</p>
+
+        <form id="planForm" class="plan-form">
+            <select id="situation" required>
+                <option value="">I am a...</option>
+                <option value="Single mother">Single mother</option>
+                <option value="Recently divorced">Recently divorced</option>
+                <option value="Separated">Separated</option>
+            </select>
+            <input type="number" id="salary" placeholder="Monthly take-home salary ($)" required />
+            <input type="number" id="numChildren" placeholder="Number of children" required />
+            <input type="text" id="childAges" placeholder="Children's ages (e.g. 4, 8)" required />
+            <input type="number" id="rent" placeholder="Monthly rent / mortgage ($)" required />
+            <input type="number" id="totalDebt" placeholder="Total debt ($)" required />
+            <input type="number" id="monthlyDebtPayment" placeholder="Monthly debt payment ($)" required />
+            <input type="number" id="savings" placeholder="Current savings ($)" required />
+            <button type="submit" class="btn-primary" id="submitBtn">✨ Generate My Plan</button>
+        </form>
+
+        <!-- Results appear here -->
+        <div id="results" class="results-box" style="display:none;"></div>
     </section>
 
 
