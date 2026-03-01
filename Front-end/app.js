@@ -482,3 +482,366 @@ voiceBtn?.addEventListener("click", async () => {
     voiceSpinner.style.display = "none";
   }
 });
+
+
+// ===== VOICE MODAL =====
+
+const VOICE_QUESTIONS = [
+  {
+    key: "persona",
+    question: "First, what's your current situation? For example, are you a single mom, recently divorced, restarting financially, or a student?",
+    label: "Persona",
+    type: "text",
+    options: ["single_mom", "divorced", "restarting", "student"],
+  },
+  {
+    key: "income",
+    question: "What is your monthly income in dollars? Just say the number.",
+    label: "Monthly Income",
+    type: "number",
+  },
+  {
+    key: "dependents",
+    question: "How many dependents do you have?",
+    label: "Dependents",
+    type: "number",
+  },
+  {
+    key: "rent",
+    question: "How much do you pay each month for housing or rent?",
+    label: "Housing / Rent",
+    type: "number",
+  },
+  {
+    key: "debtTotal",
+    question: "What is your total debt amount across all loans and credit cards?",
+    label: "Total Debt",
+    type: "number",
+  },
+  {
+    key: "apr",
+    question: "What is your average interest rate or APR as a percentage? For example, say 19.9 for 19.9 percent.",
+    label: "Avg APR %",
+    type: "number",
+  },
+  {
+    key: "goal",
+    question: "Finally, what is your primary goal? Say: become debt-free, build emergency fund, or debt and savings together.",
+    label: "Primary Goal",
+    type: "text",
+    options: ["debt_free", "save_more", "both"],
+  },
+];
+
+let voiceStep = 0;
+let voiceAnswers = {};
+let currentTranscript = "";
+let recognition = null;
+let isListening = false;
+const API_URL = "http://127.0.0.1:5000";
+
+// Modal open/close
+document.getElementById("openVoiceModal").addEventListener("click", () => {
+  document.getElementById("voiceModal").style.display = "flex";
+  voiceStep = 0;
+  voiceAnswers = {};
+  currentTranscript = "";
+  resetModalUI();
+});
+
+document.getElementById("closeVoiceModal").addEventListener("click", () => {
+  closeVoiceModal();
+});
+
+document.getElementById("voiceModal").addEventListener("click", (e) => {
+  if (e.target === document.getElementById("voiceModal")) closeVoiceModal();
+});
+
+function closeVoiceModal() {
+  stopListening();
+  document.getElementById("voiceModal").style.display = "none";
+}
+
+function resetModalUI() {
+  document.getElementById("voiceQuestionBox").textContent = "Press Start to begin your voice session.";
+  document.getElementById("voiceAnswerBox").style.display = "none";
+  document.getElementById("voiceAnswerText").textContent = "";
+  document.getElementById("voiceStatus").textContent = "";
+  document.getElementById("voiceProgressFill").style.width = "0%";
+  document.getElementById("voiceStepLabel").textContent = "Step 0 of 7";
+  document.getElementById("voiceAnswersList").innerHTML = "";
+  document.getElementById("voiceStartBtn").style.display = "inline-flex";
+  document.getElementById("voiceRetryBtn").style.display = "none";
+  document.getElementById("voiceNextBtn").style.display = "none";
+  document.getElementById("avatarRing").classList.remove("speaking", "listening");
+  document.getElementById("voiceModalSubtitle").textContent = "I'll ask you a few questions to build your personalized plan.";
+}
+
+async function speakQuestion(text) {
+  setAvatarState("speaking");
+  setVoiceStatus("Speaking...");
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 8000);
+    const res = await fetch(`${API_URL}/api/speak/`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text }),
+      signal: controller.signal,
+    });
+    clearTimeout(timeout);
+    if (!res.ok) { setVoiceStatus(""); return; }
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const audio = new Audio(url);
+    return new Promise((resolve) => {
+      audio.onended = resolve;
+      audio.onerror = resolve;
+      audio.play().catch(resolve);
+    });
+  } catch (err) {
+    setVoiceStatus("");
+  }
+}
+
+function startListening() {
+  if (!("webkitSpeechRecognition" in window) && !("SpeechRecognition" in window)) {
+    setVoiceStatus("❌ Your browser doesn't support voice input. Please use Chrome.");
+    return;
+  }
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new SR();
+  recognition.lang = "en-US";
+  recognition.interimResults = true;
+  recognition.maxAlternatives = 1;
+
+  recognition.onstart = () => { isListening = true; setAvatarState("listening"); setVoiceStatus("🎙️ Listening... speak now"); };
+  recognition.onresult = (event) => {
+    let final = "", interim = "";
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      const t = event.results[i][0].transcript;
+      if (event.results[i].isFinal) final += t; else interim += t;
+    }
+    currentTranscript = (final || interim).trim();
+    document.getElementById("voiceAnswerText").textContent = currentTranscript;
+    document.getElementById("voiceAnswerBox").style.display = "block";
+  };
+  recognition.onend = () => {
+    isListening = false;
+    setAvatarState("idle");
+    if (currentTranscript) {
+      setVoiceStatus("✅ Got it! Confirm or retry.");
+      document.getElementById("voiceRetryBtn").style.display = "inline-flex";
+      document.getElementById("voiceNextBtn").style.display = "inline-flex";
+    } else {
+      setVoiceStatus("Didn't catch that. Try again.");
+      document.getElementById("voiceRetryBtn").style.display = "inline-flex";
+    }
+  };
+  recognition.onerror = (e) => {
+    isListening = false;
+    setAvatarState("idle");
+    setVoiceStatus(`Error: ${e.error}. Please retry.`);
+    document.getElementById("voiceRetryBtn").style.display = "inline-flex";
+  };
+  recognition.start();
+}
+
+function stopListening() {
+  if (recognition && isListening) { recognition.stop(); isListening = false; }
+}
+
+function parseVoiceAnswer(transcript, q) {
+  if (q.type === "number") {
+    const numMatch = transcript.replace(/,/g, "").match(/[\d.]+/);
+    if (numMatch) return parseFloat(numMatch[0]);
+    const wordMap = { zero:0,a:1,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20,thirty:30,forty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90,hundred:100,thousand:1000,grand:1000,k:1000 };
+    const words = transcript.toLowerCase().replace(/\$/g, "").split(/[\s,]+/);
+    let total = 0, current = 0;
+    for (const w of words) {
+      if (wordMap[w] !== undefined) {
+        const val = wordMap[w];
+        if (val === 100) {
+          // "hundred" multiplies current chunk (default to 1 if current is 0)
+          current = (current === 0 ? 1 : current) * 100;
+        } else if (val === 1000) {
+          // "thousand/grand/k" multiplies current chunk (default to 1 if current is 0)
+          total += (current === 0 ? 1 : current) * 1000;
+          current = 0;
+        } else {
+          current += val;
+        }
+      }
+    }
+    return total + current || null;
+  }
+  if (q.key === "persona") {
+    const l = transcript.toLowerCase();
+    if (l.includes("single")) return "single_mom";
+    if (l.includes("divorce")) return "divorced";
+    if (l.includes("restart")) return "restarting";
+    if (l.includes("student")) return "student";
+  }
+  if (q.key === "goal") {
+    const l = transcript.toLowerCase();
+    if (l.includes("debt") && l.includes("sav")) return "both";
+    if (l.includes("debt")) return "debt_free";
+    if (l.includes("sav") || l.includes("emergency")) return "save_more";
+  }
+  return transcript;
+}
+
+async function startVoiceSession() {
+  document.getElementById("voiceStartBtn").style.display = "none";
+  voiceStep = 0;
+  voiceAnswers = {};
+  await askVoiceQuestion(voiceStep);
+}
+
+async function askVoiceQuestion(step) {
+  if (step >= VOICE_QUESTIONS.length) { await finishVoiceSession(); return; }
+  const q = VOICE_QUESTIONS[step];
+  currentTranscript = "";
+  document.getElementById("voiceQuestionBox").textContent = q.question;
+  document.getElementById("voiceAnswerBox").style.display = "none";
+  document.getElementById("voiceAnswerText").textContent = "";
+  document.getElementById("voiceRetryBtn").style.display = "none";
+  document.getElementById("voiceNextBtn").style.display = "none";
+  document.getElementById("voiceProgressFill").style.width = `${(step / VOICE_QUESTIONS.length) * 100}%`;
+  document.getElementById("voiceStepLabel").textContent = `Step ${step + 1} of ${VOICE_QUESTIONS.length}`;
+  await speakQuestion(q.question);
+  startListening();
+}
+
+function retryAnswer() {
+  currentTranscript = "";
+  document.getElementById("voiceAnswerBox").style.display = "none";
+  document.getElementById("voiceRetryBtn").style.display = "none";
+  document.getElementById("voiceNextBtn").style.display = "none";
+  setVoiceStatus("");
+  startListening();
+}
+
+function confirmAndNext() {
+  const q = VOICE_QUESTIONS[voiceStep];
+  const parsed = parseVoiceAnswer(currentTranscript, q);
+  if (parsed === null || parsed === "") { setVoiceStatus("Couldn't parse that. Please retry."); return; }
+  voiceAnswers[q.key] = parsed;
+  const list = document.getElementById("voiceAnswersList");
+  const item = document.createElement("div");
+  item.className = "voice-collected-answer";
+  // Show currency format for money fields, plain number for others
+  const moneyKeys = ["income", "rent", "debtTotal"];
+  let displayVal = parsed;
+  if (moneyKeys.includes(q.key) && typeof parsed === "number") {
+    displayVal = parsed.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+  }
+  item.innerHTML = `<span class="vca-label">${q.label}</span><span class="vca-value">${displayVal}</span>`;
+  list.appendChild(item);
+  voiceStep++;
+  askVoiceQuestion(voiceStep);
+}
+
+async function finishVoiceSession() {
+  setAvatarState("speaking");
+  document.getElementById("voiceProgressFill").style.width = "100%";
+  document.getElementById("voiceStepLabel").textContent = "Complete!";
+  document.getElementById("voiceQuestionBox").textContent = "Amazing! Building your plan now...";
+  document.getElementById("voiceModalSubtitle").textContent = "Generating your personalized plan ✨";
+  setVoiceStatus("⏳ Sending to AI...");
+
+  // Also populate the form fields so the UI reflects what was collected
+  const fieldMap = { persona: "persona", income: "income", dependents: "dependents", rent: "rent", debtTotal: "debtTotal", apr: "apr", goal: "goal" };
+  Object.entries(fieldMap).forEach(([key, id]) => {
+    const el = document.getElementById(id);
+    if (el && voiceAnswers[key] !== undefined) el.value = voiceAnswers[key];
+  });
+
+  closeVoiceModal();
+
+  // Show loading state immediately — no form validation needed
+  // Scroll to the results section so the user can see the loading state
+  document.getElementById("planForm")?.scrollIntoView({ behavior: "smooth", block: "center" });
+  if (emptyState) emptyState.classList.add("hidden");
+  if (loadingState) loadingState.classList.remove("hidden");
+  if (resultsState) resultsState.classList.add("hidden");
+  if (generateBtn) { generateBtn.disabled = true; }
+  if (btnSpinner) btnSpinner.style.display = "inline-block";
+
+  try {
+    const res = await fetch(`${API_URL}/api/gemini/`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userProfile: {
+          situation: voiceAnswers.persona,
+          salary: Number(voiceAnswers.income) || 0,
+          numChildren: Number(voiceAnswers.dependents) || 0,
+          childAges: "N/A",
+          rent: Number(voiceAnswers.rent) || 0,
+          totalDebt: Number(voiceAnswers.debtTotal) || 0,
+          monthlyDebtPayment: 0,
+          savings: 0,
+        }
+      }),
+    });
+
+    const contentType = res.headers.get("content-type") || "";
+    let payload;
+    if (contentType.includes("application/json")) {
+      payload = await res.json();
+    } else {
+      payload = { ai_summary: await res.text() };
+    }
+
+    const bb = payload.budgetBreakdown || {};
+    const budget = Object.entries(bb).map(([label, amount]) => ({
+      label: label.charAt(0).toUpperCase() + label.slice(1),
+      amount
+    }));
+
+    const outDebt = bb.debt
+      ? `${Math.max(6, Math.round(Number(voiceAnswers.debtTotal) / Math.max(1, bb.debt)))} mo`
+      : "—";
+    const outMonthlySave = bb.emergency || bb.investment || 0;
+
+    outScore.textContent = "—";
+    outDebtEta.textContent = outDebt;
+    outSave.textContent = money(outMonthlySave);
+    outMethod.textContent = "Personalized";
+
+    renderBudget(budget);
+    renderSteps(nextSteps, payload.priorityActions || []);
+    renderSteps(sixMonthSteps, payload.sixMonthPlan || []);
+    aiSummary.textContent =
+      payload.voiceSummary ||
+      "Your plan is ready. Review the steps and start with your next 30 days.";
+
+    window.__VOICE_TEXT__ = payload.voiceSummary || aiSummary.textContent;
+
+    audioPlayer.classList.add("hidden");
+    audioPlayer.removeAttribute("src");
+
+    showResults();
+    showToast("Plan generated successfully ✅");
+    // Scroll to results so user sees the plan
+    document.getElementById("resultsState")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  } catch (err) {
+    console.error("Voice plan generation error:", err);
+    if (loadingState) loadingState.classList.add("hidden");
+    if (emptyState) emptyState.classList.remove("hidden");
+    showToast("Could not connect to backend. Check API URL / server.");
+  } finally {
+    if (generateBtn) generateBtn.disabled = false;
+    if (btnSpinner) btnSpinner.style.display = "none";
+  }
+}
+
+function setVoiceStatus(msg) { document.getElementById("voiceStatus").textContent = msg; }
+
+function setAvatarState(state) {
+  const ring = document.getElementById("avatarRing");
+  ring.classList.remove("speaking", "listening");
+  if (state === "speaking") ring.classList.add("speaking");
+  if (state === "listening") ring.classList.add("listening");
+}
