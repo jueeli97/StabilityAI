@@ -575,9 +575,16 @@ voiceBtn?.addEventListener("click", async () => {
       audioPlayer.src = URL.createObjectURL(blob);
     }
 
+    // audioPlayer.classList.remove("hidden");
+    // audioPlayer.play().catch(() => { });
+    // showToast("Voice ready 🎧");
     audioPlayer.classList.remove("hidden");
-    audioPlayer.play().catch(() => { });
-    showToast("Voice ready 🎧");
+    audioPlayer.controls = true;  // make sure controls are visible
+    audioPlayer.play().catch((err) => {
+      console.warn("Autoplay blocked:", err);
+      showToast("🎧 Press play on the audio player below.");
+    });
+    showToast("Voice ready 🎧 Press play!");
   } catch (e) {
     console.error(e);
     showToast("Voice generation failed. Check /api/voice.");
@@ -909,7 +916,24 @@ async function finishVoiceSession() {
       : "—";
     const outMonthlySave = bb.emergency || bb.investment || 0;
 
-    outScore.textContent = "—";
+    const score = computeStabilityScore({
+      income: Number(voiceAnswers.income) || 0,
+      rent: Number(voiceAnswers.rent) || 0,
+      debtTotal: Number(voiceAnswers.debtTotal) || 0,
+      apr: Number(voiceAnswers.apr) || 0,
+      monthlySave: outMonthlySave,
+    });
+
+    outScore.textContent = score;
+    setScoreChip(score);
+
+    updateKpiRings({
+      score,
+      debtMonths: parseMonths(outDebt),
+      income: Number(voiceAnswers.income) || 0,
+      monthlySave: outMonthlySave,
+    });
+
     outDebtEta.textContent = outDebt;
     outSave.textContent = money(outMonthlySave);
     outMethod.textContent = "Personalized";
