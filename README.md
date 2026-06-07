@@ -1,4 +1,4 @@
-````markdown
+
 <p align="center">
   <img src="Front-end/images/herrestartAI.png" alt="HerRestartAI Banner" width="100%">
 </p>
