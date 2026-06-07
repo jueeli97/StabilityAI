@@ -30,7 +30,7 @@ Helping women rebuild financial confidence through personalized AI-powered guida
 
 # 🌟 Overview
 
-Financial planning tools often assume stable income, predictable expenses, and straightforward financial goals. However, many women experiencing major life transitions—such as divorce, single parenthood, career breaks, or financial hardship—require personalized guidance tailored to their unique circumstances.
+Financial planning tools often assume stable income, predictable expenses, and straightforward financial goals. However, many women experiencing major life transitions such as divorce, single parenthood, career breaks, or financial hardship that require personalized guidance tailored to their unique circumstances.
 
 **HerRestartAI** is an AI-powered financial recovery assistant that transforms a user's financial profile into an actionable recovery strategy using Large Language Models. The platform generates personalized budgeting recommendations, debt reduction plans, savings strategies, and a structured financial roadmap while also providing voice-based explanations for an accessible and supportive experience.
 
@@ -268,7 +268,3 @@ Built with the vision of making personalized financial guidance more accessible,
 
 ---
 
-# ⭐ If you found this project interesting, consider giving it a Star!
-
-```
-```
