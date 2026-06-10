@@ -1164,3 +1164,448 @@ function updatePartnerTrack() {
     d.classList.toggle("active", i === partnerIndex);
   });
 }
+
+// ================= CHILD SUPPORT CALCULATOR =================
+// Paste at the bottom of app.js
+
+// State formulas: "income_shares" or "percentage"
+// income_shares: both incomes combined, proportional share
+// percentage: flat % of paying parent's income (TX, WI, MS, ND, MN, AR use variants)
+const CS_STATE_DATA = {
+  AL: { model: "income_shares", name: "Income Shares Model" },
+  AK: { model: "income_shares", name: "Income Shares Model" },
+  AZ: { model: "income_shares", name: "Income Shares Model" },
+  AR: { model: "percentage", pcts: [17, 25, 29, 31, 34], name: "Percentage of Income Model" },
+  CA: { model: "income_shares", name: "Income Shares Model" },
+  CO: { model: "income_shares", name: "Income Shares Model" },
+  CT: { model: "income_shares", name: "Income Shares Model" },
+  DE: { model: "income_shares", name: "Income Shares Model" },
+  FL: { model: "income_shares", name: "Income Shares Model" },
+  GA: { model: "income_shares", name: "Income Shares Model" },
+  HI: { model: "income_shares", name: "Income Shares Model" },
+  ID: { model: "income_shares", name: "Income Shares Model" },
+  IL: { model: "percentage", pcts: [20, 28, 32, 40, 45], name: "Percentage of Income Model" },
+  IN: { model: "income_shares", name: "Income Shares Model" },
+  IA: { model: "income_shares", name: "Income Shares Model" },
+  KS: { model: "income_shares", name: "Income Shares Model" },
+  KY: { model: "income_shares", name: "Income Shares Model" },
+  LA: { model: "income_shares", name: "Income Shares Model" },
+  ME: { model: "income_shares", name: "Income Shares Model" },
+  MD: { model: "income_shares", name: "Income Shares Model" },
+  MA: { model: "percentage", pcts: [17, 25, 29, 31, 34], name: "Percentage of Income (MA Guidelines)" },
+  MI: { model: "income_shares", name: "Income Shares Model" },
+  MN: { model: "percentage", pcts: [25, 30, 35, 40, 45], name: "Percentage of Income Model" },
+  MS: { model: "percentage", pcts: [14, 20, 22, 24, 26], name: "Percentage of Income Model" },
+  MO: { model: "income_shares", name: "Income Shares Model" },
+  MT: { model: "income_shares", name: "Income Shares Model" },
+  NE: { model: "income_shares", name: "Income Shares Model" },
+  NV: { model: "income_shares", name: "Income Shares Model" },
+  NH: { model: "income_shares", name: "Income Shares Model" },
+  NJ: { model: "income_shares", name: "Income Shares Model" },
+  NM: { model: "income_shares", name: "Income Shares Model" },
+  NY: { model: "percentage", pcts: [17, 25, 29, 31, 35], name: "Percentage of Income (CSSA)" },
+  NC: { model: "income_shares", name: "Income Shares Model" },
+  ND: { model: "income_shares", name: "Income Shares Model" },
+  OH: { model: "income_shares", name: "Income Shares Model" },
+  OK: { model: "income_shares", name: "Income Shares Model" },
+  OR: { model: "income_shares", name: "Income Shares Model" },
+  PA: { model: "income_shares", name: "Income Shares Model" },
+  RI: { model: "income_shares", name: "Income Shares Model" },
+  SC: { model: "income_shares", name: "Income Shares Model" },
+  SD: { model: "income_shares", name: "Income Shares Model" },
+  TN: { model: "income_shares", name: "Income Shares Model" },
+  TX: { model: "percentage", pcts: [20, 25, 30, 35, 40], name: "Percentage of Income Model" },
+  UT: { model: "income_shares", name: "Income Shares Model" },
+  VT: { model: "income_shares", name: "Income Shares Model" },
+  VA: { model: "income_shares", name: "Income Shares Model" },
+  WA: { model: "income_shares", name: "Income Shares Model" },
+  WV: { model: "income_shares", name: "Income Shares Model" },
+  WI: { model: "percentage", pcts: [17, 25, 29, 31, 34], name: "Percentage of Income Model" },
+  WY: { model: "income_shares", name: "Income Shares Model" },
+};
+
+// Basic child support obligation table (combined monthly income → obligation)
+// Simplified from federal guidelines; real tables are much larger
+// [combined_income_ceiling, [1child, 2child, 3child, 4child, 5child+]]
+const CS_OBLIGATION_TABLE = [
+  [1000,  [201,  282,  315,  330,  341]],
+  [1500,  [292,  411,  459,  482,  497]],
+  [2000,  [378,  533,  595,  624,  645]],
+  [2500,  [460,  648,  724,  759,  784]],
+  [3000,  [540,  760,  849,  891,  920]],
+  [3500,  [617,  868,  970, 1018, 1051]],
+  [4000,  [690,  972, 1086, 1139, 1176]],
+  [4500,  [761, 1072, 1197, 1257, 1298]],
+  [5000,  [829, 1167, 1304, 1369, 1413]],
+  [5500,  [894, 1259, 1406, 1476, 1524]],
+  [6000,  [957, 1347, 1505, 1580, 1631]],
+  [7000, [1077, 1516, 1694, 1778, 1836]],
+  [8000, [1191, 1677, 1873, 1966, 2030]],
+  [9000, [1299, 1829, 2044, 2145, 2216]],
+  [10000,[1402, 1974, 2205, 2315, 2390]],
+  [99999,[1500, 2100, 2350, 2470, 2550]], // cap
+];
+
+function getObligationFromTable(combinedIncome, numChildren) {
+  const idx = Math.min(numChildren, 5) - 1;
+  for (const [ceiling, amounts] of CS_OBLIGATION_TABLE) {
+    if (combinedIncome <= ceiling) return amounts[idx];
+  }
+  return CS_OBLIGATION_TABLE[CS_OBLIGATION_TABLE.length - 1][1][idx];
+}
+
+function calcChildSupport({ state, myIncome, otherIncome, children, custody, childcare }) {
+  const sd = CS_STATE_DATA[state];
+  if (!sd) return null;
+
+  const n = Math.min(Math.max(1, children), 5);
+  const custodyMultiplier = custody === "shared" ? 0.65 : custody === "primary" ? 0.85 : 1.0;
+
+  let base, low, high;
+
+  if (sd.model === "percentage") {
+    const pct = sd.pcts[n - 1] / 100;
+    base = otherIncome * pct * custodyMultiplier;
+    low  = Math.round(base * 0.88);
+    high = Math.round(base * 1.12);
+  } else {
+    // Income shares
+    const combined = myIncome + otherIncome;
+    const obligation = getObligationFromTable(combined, n);
+    const otherShare = combined > 0 ? otherIncome / combined : 0.5;
+    base = obligation * otherShare * custodyMultiplier;
+    low  = Math.round(base * 0.88);
+    high = Math.round(base * 1.12);
+  }
+
+  // Add childcare share
+  const combined = myIncome + otherIncome;
+  const otherShareOfChildcare = combined > 0 ? (otherIncome / combined) : 0.5;
+  const childcareAdd = childcare * otherShareOfChildcare;
+
+  base = Math.round(base + childcareAdd);
+  low  = Math.round(low  + childcareAdd);
+  high = Math.round(high + childcareAdd);
+
+  return { base, low, high, model: sd.name, childcareAdd: Math.round(childcareAdd) };
+}
+
+const STATE_NAMES = {
+  AL:"Alabama",AK:"Alaska",AZ:"Arizona",AR:"Arkansas",CA:"California",CO:"Colorado",
+  CT:"Connecticut",DE:"Delaware",FL:"Florida",GA:"Georgia",HI:"Hawaii",ID:"Idaho",
+  IL:"Illinois",IN:"Indiana",IA:"Iowa",KS:"Kansas",KY:"Kentucky",LA:"Louisiana",
+  ME:"Maine",MD:"Maryland",MA:"Massachusetts",MI:"Michigan",MN:"Minnesota",
+  MS:"Mississippi",MO:"Missouri",MT:"Montana",NE:"Nebraska",NV:"Nevada",
+  NH:"New Hampshire",NJ:"New Jersey",NM:"New Mexico",NY:"New York",NC:"North Carolina",
+  ND:"North Dakota",OH:"Ohio",OK:"Oklahoma",OR:"Oregon",PA:"Pennsylvania",
+  RI:"Rhode Island",SC:"South Carolina",SD:"South Dakota",TN:"Tennessee",TX:"Texas",
+  UT:"Utah",VT:"Vermont",VA:"Virginia",WA:"Washington",WV:"West Virginia",
+  WI:"Wisconsin",WY:"Wyoming"
+};
+
+document.getElementById("cs-calculate-btn").addEventListener("click", () => {
+  const state    = document.getElementById("cs-state").value;
+  const myIncome = parseFloat(document.getElementById("cs-my-income").value) || 0;
+  const otherIncome = parseFloat(document.getElementById("cs-other-income").value) || 0;
+  const children = parseInt(document.getElementById("cs-children").value) || 1;
+  const custody  = document.getElementById("cs-custody").value;
+  const childcare = parseFloat(document.getElementById("cs-childcare").value) || 0;
+
+  if (!state) { alert("Please select your state."); return; }
+  if (otherIncome <= 0) { alert("Please enter the other parent's income to calculate."); return; }
+
+  const result = calcChildSupport({ state, myIncome, otherIncome, children, custody, childcare });
+  if (!result) return;
+
+  const fmt = n => n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+
+  document.getElementById("cs-state-label").textContent = STATE_NAMES[state] + " · " + result.model;
+  document.getElementById("cs-formula-name").textContent = "Estimated Monthly Child Support";
+  document.getElementById("cs-amount").textContent = fmt(result.base);
+  document.getElementById("cs-range").textContent = `Typical range: ${fmt(result.low)} – ${fmt(result.high)}`;
+
+  const custodyLabels = { sole: "Sole custody (you)", primary: "Primary custody (70/30)", shared: "Shared custody (50/50)" };
+  document.getElementById("cs-breakdown").innerHTML = `
+    <div class="cs-breakdown-row"><span class="label">Your income</span><span class="value">${fmt(myIncome)}/mo</span></div>
+    <div class="cs-breakdown-row"><span class="label">Other parent's income</span><span class="value">${fmt(otherIncome)}/mo</span></div>
+    <div class="cs-breakdown-row"><span class="label">Children</span><span class="value">${children}</span></div>
+    <div class="cs-breakdown-row"><span class="label">Custody arrangement</span><span class="value">${custodyLabels[custody]}</span></div>
+    ${childcare > 0 ? `<div class="cs-breakdown-row"><span class="label">Childcare share added</span><span class="value">${fmt(result.childcareAdd)}/mo</span></div>` : ""}
+  `;
+
+  document.getElementById("cs-note").textContent =
+    "⚠️ This is an estimate only. Actual amounts depend on additional factors including health insurance, special needs, and judicial discretion. Always consult a licensed family law attorney.";
+
+  document.getElementById("cs-empty").classList.add("hidden");
+  document.getElementById("cs-result").classList.remove("hidden");
+});
+
+
+// ================= LOCAL RESOURCE FINDER =================
+// Paste below the child support calculator code
+
+const RESOURCES = [
+  // ---- NATIONAL (show for all states) ----
+  {
+    name: "211 Helpline",
+    cat: "financial",
+    scope: "national",
+    states: [],
+    icon: "📞",
+    desc: "Call or text 211 to reach a local specialist who can connect you to food, housing, childcare, and financial assistance in your area.",
+    tag: "Free Helpline",
+    url: "https://www.211.org",
+    cta: "Find local help →"
+  },
+  {
+    name: "WIC Program",
+    cat: "food",
+    scope: "national",
+    states: [],
+    icon: "🍎",
+    desc: "Free nutrition support for women, infants, and children under 5. Covers groceries, formula, and breastfeeding support.",
+    tag: "For Moms & Kids",
+    url: "https://www.fns.usda.gov/wic",
+    cta: "Check eligibility →"
+  },
+  {
+    name: "SNAP (Food Stamps)",
+    cat: "food",
+    scope: "national",
+    states: [],
+    icon: "🛒",
+    desc: "Monthly food assistance benefits loaded to an EBT card. Single moms often qualify based on household income.",
+    tag: "Monthly Benefits",
+    url: "https://www.fns.usda.gov/snap/recipient/eligibility",
+    cta: "Apply now →"
+  },
+  {
+    name: "Child Care & Development Fund",
+    cat: "childcare",
+    scope: "national",
+    states: [],
+    icon: "👶",
+    desc: "Federal childcare subsidy program for low-income working mothers. Can cover most or all of your childcare costs.",
+    tag: "Subsidy Available",
+    url: "https://www.acf.hhs.gov/occ/childcare-financial-assistance-options",
+    cta: "Check eligibility →"
+  },
+  {
+    name: "Head Start & Early Head Start",
+    cat: "childcare",
+    scope: "national",
+    states: [],
+    icon: "🎒",
+    desc: "Free early childhood education and childcare for income-eligible families with children under 5.",
+    tag: "Free Program",
+    url: "https://www.acf.hhs.gov/ohs",
+    cta: "Find a program →"
+  },
+  {
+    name: "Legal Services Corporation",
+    cat: "legal",
+    scope: "national",
+    states: [],
+    icon: "⚖️",
+    desc: "Free civil legal aid for low-income women — including divorce, custody, domestic violence protection, and child support enforcement.",
+    tag: "Free Legal Help",
+    url: "https://www.lsc.gov/about-lsc/what-legal-aid/get-legal-help",
+    cta: "Find legal aid →"
+  },
+  {
+    name: "WomensLaw.org",
+    cat: "legal",
+    scope: "national",
+    states: [],
+    icon: "🛡️",
+    desc: "Legal information and resources specifically for women experiencing abuse, going through custody battles, or navigating divorce.",
+    tag: "Women-Focused",
+    url: "https://www.womenslaw.org",
+    cta: "Get information →"
+  },
+  {
+    name: "Section 8 / HCV Program",
+    cat: "housing",
+    scope: "national",
+    states: [],
+    icon: "🏠",
+    desc: "Federal rental assistance vouchers that help low-income families afford safe housing. Apply through your local housing authority.",
+    tag: "Rental Assistance",
+    url: "https://www.hud.gov/topics/housing_choice_voucher_program_section_8",
+    cta: "Apply now →"
+  },
+  {
+    name: "TANF (Cash Assistance)",
+    cat: "financial",
+    scope: "national",
+    states: [],
+    icon: "💵",
+    desc: "Temporary cash assistance and support services for single parents. Administered by your state — check your state's program.",
+    tag: "Cash Support",
+    url: "https://www.acf.hhs.gov/ofa/programs/tanf",
+    cta: "Learn more →"
+  },
+  {
+    name: "Modest Needs Foundation",
+    cat: "financial",
+    scope: "national",
+    states: [],
+    icon: "🤲",
+    desc: "Emergency grants to working single parents to cover one-time unexpected expenses before they become a financial crisis.",
+    tag: "Emergency Grant",
+    url: "https://www.modestneeds.org",
+    cta: "Apply for grant →"
+  },
+  {
+    name: "Medicaid & CHIP",
+    cat: "health",
+    scope: "national",
+    states: [],
+    icon: "❤️",
+    desc: "Free or low-cost health coverage for single mothers and their children. Most single moms earning under $2,000/mo qualify.",
+    tag: "Free Healthcare",
+    url: "https://www.healthcare.gov/medicaid-chip/getting-medicaid-chip/",
+    cta: "Check eligibility →"
+  },
+  {
+    name: "Planned Parenthood",
+    cat: "health",
+    scope: "national",
+    states: [],
+    icon: "🩺",
+    desc: "Affordable reproductive health care, wellness visits, birth control, and STI testing on a sliding-scale fee.",
+    tag: "Sliding Scale",
+    url: "https://www.plannedparenthood.org",
+    cta: "Find a clinic →"
+  },
+  {
+    name: "National Domestic Violence Hotline",
+    cat: "legal",
+    scope: "national",
+    states: [],
+    icon: "💜",
+    desc: "Free, confidential support 24/7 for women escaping abusive relationships — including financial abuse and coercive control.",
+    tag: "24/7 Support",
+    url: "https://www.thehotline.org",
+    cta: "Get help →"
+  },
+  {
+    name: "Ellevest",
+    cat: "financial",
+    scope: "national",
+    states: [],
+    icon: "📈",
+    desc: "Investment platform built for women with goal-based plans designed around career breaks, divorce, and rebuilding wealth.",
+    tag: "Women-Focused",
+    url: "https://www.ellevest.com",
+    cta: "Start investing →"
+  },
+  // ---- STATE-SPECIFIC ----
+  {
+    name: "California Work Opportunity (CalWORKs)",
+    cat: "financial",
+    scope: "state",
+    states: ["CA"],
+    icon: "💰",
+    desc: "California's cash aid and services program for families with children. Includes job training and childcare support.",
+    tag: "CA Only",
+    url: "https://www.cdss.ca.gov/calworks",
+    cta: "Apply in CA →"
+  },
+  {
+    name: "NY Single Parent Resource Center",
+    cat: "financial",
+    scope: "state",
+    states: ["NY"],
+    icon: "🗽",
+    desc: "New York City resource hub connecting single parents to financial coaching, childcare, housing, and legal services.",
+    tag: "NY Only",
+    url: "https://www.nyc.gov/site/hra/index.page",
+    cta: "Find NYC resources →"
+  },
+  {
+    name: "Texas Women's Foundation",
+    cat: "financial",
+    scope: "state",
+    states: ["TX"],
+    icon: "⭐",
+    desc: "Grants and scholarships for women in Texas navigating financial hardship, career transition, or single parenthood.",
+    tag: "TX Only",
+    url: "https://txwf.org",
+    cta: "Apply in TX →"
+  },
+  {
+    name: "Florida Single Mom Programs",
+    cat: "financial",
+    scope: "state",
+    states: ["FL"],
+    icon: "🌴",
+    desc: "Florida's ACCESS program provides food stamps, Medicaid, and cash assistance for single mothers in one application.",
+    tag: "FL Only",
+    url: "https://www.myflorida.com/accessflorida/",
+    cta: "Apply in FL →"
+  },
+  {
+    name: "Illinois DHS Family Support",
+    cat: "financial",
+    scope: "state",
+    states: ["IL"],
+    icon: "🌆",
+    desc: "Illinois Department of Human Services provides SNAP, childcare, and emergency financial help for single parents.",
+    tag: "IL Only",
+    url: "https://www.dhs.state.il.us",
+    cta: "Apply in IL →"
+  },
+];
+
+function renderResources() {
+  const state = document.getElementById("res-state").value;
+  const activePill = document.querySelector(".res-pill.active");
+  const cat = activePill ? activePill.dataset.cat : "all";
+  const grid = document.getElementById("resource-grid");
+
+  let filtered = RESOURCES.filter(r => {
+    const catMatch = cat === "all" || r.cat === cat;
+    const stateMatch = r.scope === "national" || (state && r.states.includes(state));
+    return catMatch && stateMatch;
+  });
+
+  if (filtered.length === 0) {
+    grid.innerHTML = `
+      <div class="resource-no-results">
+        <h4>No resources found</h4>
+        <p>Try selecting "All" categories or a different state.<br>You can always call <strong>211</strong> for local help.</p>
+      </div>`;
+    return;
+  }
+
+  grid.innerHTML = filtered.map(r => `
+    <a class="resource-card" href="${r.url}" target="_blank" rel="noopener noreferrer">
+      <div class="resource-card-top">
+        <div class="resource-icon ${r.cat}">${r.icon}</div>
+        <div>
+          <div class="resource-name">${r.name}</div>
+          <div class="resource-scope">${r.scope === "national" ? "National" : r.states.join(", ")}</div>
+        </div>
+      </div>
+      <div class="resource-desc">${r.desc}</div>
+      <span class="resource-tag">${r.tag}</span>
+      <div class="resource-cta">${r.cta}</div>
+    </a>
+  `).join("");
+}
+
+// Category pill click
+document.getElementById("res-categories").addEventListener("click", e => {
+  const pill = e.target.closest(".res-pill");
+  if (!pill) return;
+  document.querySelectorAll(".res-pill").forEach(p => p.classList.remove("active"));
+  pill.classList.add("active");
+  renderResources();
+});
+
+// State filter change
+document.getElementById("res-state").addEventListener("change", renderResources);
+
+// Initial render
+renderResources();
